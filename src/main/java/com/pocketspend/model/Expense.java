@@ -1,7 +1,12 @@
 package com.pocketspend.model;
 
-import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "expenses")
@@ -15,13 +20,12 @@ public class Expense {
 
     private String description;
 
-    @Temporal(TemporalType.DATE)
-    private Date date;
+    private LocalDate date;
 
     public Expense() {
     }
 
-    public Expense(double amount, String description, Date date) {
+    public Expense(double amount, String description, LocalDate date) {
         this.amount = amount;
         this.description = description;
         this.date = date;
@@ -51,11 +55,11 @@ public class Expense {
         this.description = description;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 }

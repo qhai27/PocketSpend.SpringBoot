@@ -1,0 +1,5 @@
+com\pocketspend\controller\ExpenseController.class
+com\pocketspend\model\Expense.class
+com\pocketspend\service\ExpenseService.class
+com\pocketspend\PocketSpendApplication.class
+com\pocketspend\repository\ExpenseRepository.class
