@@ -15,15 +15,15 @@ public class ExpenseController {
     @Autowired
     private ExpenseService expenseService;
 
-    @PostMapping
-    public ResponseEntity<Expense> createExpense(@RequestBody Expense expense) {
-        Expense createdExpense = expenseService.addExpense(expense);
+    @PostMapping("/{userId}")
+    public ResponseEntity<Expense> createExpense(@PathVariable Long userId, @RequestBody Expense expense) {
+        Expense createdExpense = expenseService.addExpense(userId, expense);
         return ResponseEntity.ok(createdExpense);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Expense>> getAllExpenses() {
-        List<Expense> expenses = expenseService.getExpenses();
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Expense>> getAllExpenses(@PathVariable Long userId) {
+        List<Expense> expenses = expenseService.getExpensesByUserId(userId);
         return ResponseEntity.ok(expenses);
     }
 

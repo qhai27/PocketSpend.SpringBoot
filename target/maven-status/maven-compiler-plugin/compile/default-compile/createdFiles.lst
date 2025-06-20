@@ -1,5 +1,15 @@
-com\pocketspend\controller\ExpenseController.class
+com\pocketspend\controller\BudgetController.class
+com\pocketspend\repository\BudgetRepository.class
+com\pocketspend\model\Budget.class
 com\pocketspend\model\Expense.class
+com\pocketspend\controller\UserController.class
+com\pocketspend\service\BudgetService.class
+com\pocketspend\controller\ExpenseController.class
+com\pocketspend\service\UserService.class
+com\pocketspend\config\CorsConfig.class
+com\pocketspend\config\SecurityConfig.class
 com\pocketspend\service\ExpenseService.class
+com\pocketspend\model\User.class
 com\pocketspend\PocketSpendApplication.class
 com\pocketspend\repository\ExpenseRepository.class
+com\pocketspend\repository\UserRepository.class

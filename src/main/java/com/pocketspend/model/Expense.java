@@ -16,19 +16,31 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long budgetId;
+
+    private String title;
+
     private double amount;
 
-    private String description;
+    private LocalDate expenseDate;
+
+    private String receiptImage;
 
     private LocalDate date;
+
+    private String description;
 
     public Expense() {
     }
 
-    public Expense(double amount, String description, LocalDate date) {
+    public Expense(Long budgetId, String title, double amount, LocalDate expenseDate, String receiptImage, LocalDate date, String description) {
+        this.budgetId = budgetId;
+        this.title = title;
         this.amount = amount;
-        this.description = description;
+        this.expenseDate = expenseDate;
+        this.receiptImage = receiptImage;
         this.date = date;
+        this.description = description;
     }
 
     public Long getId() {
@@ -39,6 +51,22 @@ public class Expense {
         this.id = id;
     }
 
+    public Long getBudgetId() {
+        return budgetId;
+    }
+
+    public void setBudgetId(Long budgetId) {
+        this.budgetId = budgetId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public double getAmount() {
         return amount;
     }
@@ -47,12 +75,20 @@ public class Expense {
         this.amount = amount;
     }
 
-    public String getDescription() {
-        return description;
+    public LocalDate getExpenseDate() {
+        return expenseDate;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setExpenseDate(LocalDate expenseDate) {
+        this.expenseDate = expenseDate;
+    }
+
+    public String getReceiptImage() {
+        return receiptImage;
+    }
+
+    public void setReceiptImage(String receiptImage) {
+        this.receiptImage = receiptImage;
     }
 
     public LocalDate getDate() {
@@ -61,5 +97,13 @@ public class Expense {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

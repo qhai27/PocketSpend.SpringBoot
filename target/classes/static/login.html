@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketSpend - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .toast { position: fixed; top: 20px; right: 20px; z-index: 50; }
+        .fade-out { animation: fadeOut 3s forwards; }
+        @keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; display: none; } }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans flex items-center justify-center min-h-screen">
+<div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold text-center mb-6">PocketSpend Login</h1>
+    <form id="login-form" class="space-y-4">
+        <div>
+            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+            <input type="text" id="username" name="username" required
+                   class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" id="password" name="password" required
+                   class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <button type="submit" id="login-btn"
+                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-gray-400">
+            Login
+        </button>
+    </form>
+    <p class="mt-4 text-center">
+        Don't have an account? <a href="/signup.html" class="text-indigo-600 hover:underline">Sign Up</a>
+    </p>
+</div>
+<div id="toast" class="toast hidden bg-red-500 text-white px-4 py-2 rounded-md"></div>
+<script>
+    function showToast(message, isError = true) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
+        toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
+        setTimeout(() => {
+            toast.classList.add('fade-out');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('fade-out');
+            }, 3000);
+        }, 3000);
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const loginBtn = document.getElementById('login-btn');
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Logging in...';
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const user = await response.json();
+                localStorage.setItem('user', JSON.stringify(user));
+                window.location.href = '/index.html';
+            } else {
+                showToast('Invalid username or password');
+            }
+        } catch (error) {
+            showToast('Error: ' + error.message);
+        } finally {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Login';
+        }
+    });
+</script>
+</body>
+</html>
