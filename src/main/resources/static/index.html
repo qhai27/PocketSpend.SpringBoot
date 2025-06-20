@@ -5,26 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PocketSpend - Expense Tracker</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f6f8fa; margin: 0; }
+        header { background: #2d3748; color: #fff; padding: 1.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
+        h1 { margin: 0; font-size: 2.2rem; letter-spacing: 2px; }
+        nav ul { list-style: none; display: flex; gap: 2rem; margin: 0; padding: 0; }
+        nav a { color: #fff; text-decoration: none; font-weight: 500; }
+        nav a:hover { text-decoration: underline; }
+        main { max-width: 800px; margin: 2rem auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 2rem; }
+        section { margin-bottom: 2.5rem; }
+        form label { display: block; margin-top: 1rem; font-weight: 500; }
+        form input, form button { width: 100%; padding: 0.5rem; margin-top: 0.5rem; border-radius: 4px; border: 1px solid #cbd5e1; }
+        form button { background: #3182ce; color: #fff; border: none; font-weight: 600; cursor: pointer; margin-top: 1.2rem; }
+        form button:hover { background: #2563eb; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f1f5f9; }
+        tr:last-child td { border-bottom: none; }
+        .action-btn { background: #e53e3e; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; }
+        .action-btn:hover { background: #c53030; }
+        .budget-info { background: #e6fffa; color: #234e52; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; }
+        footer { text-align: center; padding: 1.5rem 0; background: #2d3748; color: #fff; margin-top: 2rem; border-radius: 0 0 8px 8px; }
+    </style>
 </head>
 <body>
     <header>
-        <h1>PocketSpend</h1>
-        <nav>
-            <ul>
-                <li><a href="#add-expense">Add Expense</a></li>
-                <li><a href="#view-expenses">View Expenses</a></li>
-                <li><a href="#set-budget">Set Budget</a></li>
-            </ul>
-        </nav>
+        <div style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+            <h1>PocketSpend</h1>
+            <nav>
+                <ul>
+                    <li><a href="#add-expense">Add Expense</a></li>
+                    <li><a href="#view-expenses">View Expenses</a></li>
+                    <li><a href="#set-budget">Set Budget</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
     <main>
         <section id="add-expense">
             <h2>Add Expense</h2>
             <form id="expense-form">
-                <label for="amount">Amount:</label>
-                <input type="number" id="amount" name="amount" required>
+                <label for="amount">Amount (USD):</label>
+                <input type="number" id="amount" name="amount" step="0.01" min="0" required>
                 <label for="description">Description:</label>
-                <input type="text" id="description" name="description" required>
+                <input type="text" id="description" name="description" maxlength="255" required>
                 <label for="date">Date:</label>
                 <input type="date" id="date" name="date" required>
                 <button type="submit">Add Expense</button>
@@ -43,22 +67,100 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Expenses will be populated here -->
+                    <!-- Expenses will be dynamically populated here -->
                 </tbody>
             </table>
         </section>
         <section id="set-budget">
             <h2>Set Budget</h2>
+            <div class="budget-info" id="budget-info" style="display:none;">
+                Current Budget: <span id="current-budget"></span>
+            </div>
             <form id="budget-form">
-                <label for="budget-amount">Budget Amount:</label>
-                <input type="number" id="budget-amount" name="budget-amount" required>
+                <label for="budget-amount">Budget Amount (USD):</label>
+                <input type="number" id="budget-amount" name="budget-amount" step="0.01" min="0" required>
                 <button type="submit">Set Budget</button>
             </form>
         </section>
     </main>
     <footer>
-        <p>&copy; 2023 PocketSpend. All rights reserved.</p>
+        <p>&copy; 2025 PocketSpend. All rights reserved.</p>
     </footer>
-    <script src="script.js"></script>
+    <script>
+        // Example JS to align with your Expense entity and REST API
+        document.addEventListener('DOMContentLoaded', function() {
+            loadExpenses();
+            loadBudget();
+
+            document.getElementById('expense-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const amount = parseFloat(document.getElementById('amount').value);
+                const description = document.getElementById('description').value;
+                const date = document.getElementById('date').value;
+                fetch('/api/expenses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, description, date })
+                })
+                .then(res => res.json())
+                .then(() => {
+                    loadExpenses();
+                    this.reset();
+                });
+            });
+
+            document.getElementById('budget-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const budget = parseFloat(document.getElementById('budget-amount').value);
+                fetch('/api/budget', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: budget })
+                })
+                .then(() => {
+                    loadBudget();
+                    this.reset();
+                });
+            });
+        });
+
+        function loadExpenses() {
+            fetch('/api/expenses')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.querySelector('#expenses-table tbody');
+                    tbody.innerHTML = '';
+                    data.forEach(exp => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${exp.id}</td>
+                            <td>$${exp.amount.toFixed(2)}</td>
+                            <td>${exp.description}</td>
+                            <td>${exp.date}</td>
+                            <td><button class="action-btn" onclick="deleteExpense(${exp.id})">Delete</button></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+
+        function deleteExpense(id) {
+            fetch('/api/expenses/' + id, { method: 'DELETE' })
+                .then(() => loadExpenses());
+        }
+
+        function loadBudget() {
+            fetch('/api/budget')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.amount !== undefined) {
+                        document.getElementById('budget-info').style.display = 'block';
+                        document.getElementById('current-budget').textContent = `$${data.amount.toFixed(2)}`;
+                    } else {
+                        document.getElementById('budget-info').style.display = 'none';
+                    }
+                });
+        }
+    </script>
 </body>
 </html>

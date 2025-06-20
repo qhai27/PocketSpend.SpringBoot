@@ -1,11 +1,12 @@
 package com.pocketspend.service;
 
-import com.pocketspend.model.Expense;
-import com.pocketspend.repository.ExpenseRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.pocketspend.model.Expense;
+import com.pocketspend.repository.ExpenseRepository;
 
 @Service
 public class ExpenseService {
