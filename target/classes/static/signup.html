@@ -3,86 +3,457 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PocketSpend - Sign Up</title>
+    <title>PocketSpend - Create Account</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .toast { position: fixed; top: 20px; right: 20px; z-index: 50; }
-        .fade-out { animation: fadeOut 3s forwards; }
-        @keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; display: none; } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label {
+            transform: translateY(-24px) scale(0.85);
+            color: #667eea;
+        }
+        
+        .floating-label {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            background: white;
+            padding: 0 4px;
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .logo-container {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            background: #e5e7eb;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+        
+        .strength-weak { background: #ef4444; width: 25%; }
+        .strength-fair { background: #f59e0b; width: 50%; }
+        .strength-good { background: #10b981; width: 75%; }
+        .strength-strong { background: #059669; width: 100%; }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+        }
+        
+        .social-login {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .social-login:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 0 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: white;
+            transform: scale(1.2);
+        }
     </style>
 </head>
-<body class="bg-gray-100 font-sans flex items-center justify-center min-h-screen">
-<div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-    <h1 class="text-2xl font-bold text-center mb-6">PocketSpend Sign Up</h1>
-    <form id="signup-form" class="space-y-4">
-        <div>
-            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-            <input type="text" id="username" name="username" required
-                   class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+<body class="min-h-screen flex items-center justify-center p-4">
+    <!-- Background Animation -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div class="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <div class="w-full max-w-md relative z-10">
+        <!-- Logo and Header -->
+        <div class="text-center mb-8">
+            <div class="logo-container">
+                <i class="fas fa-wallet text-4xl mb-2"></i>
+                <h1 class="text-3xl font-bold">PocketSpend</h1>
+            </div>
+            <p class="text-white/80 mt-2">Join thousands managing their finances smarter</p>
         </div>
-        <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" id="password" name="password" required
-                   class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active"></div>
+            <div class="step"></div>
+            <div class="step"></div>
         </div>
-        <button type="submit" id="signup-btn"
-                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-gray-400">
-            Sign Up
-        </button>
-    </form>
-    <p class="mt-4 text-center">
-        Already have an account? <a href="/login.html" class="text-indigo-600 hover:underline">Login</a>
-    </p>
-</div>
-<div id="toast" class="toast hidden bg-red-500 text-white px-4 py-2 rounded-md"></div>
-<script>
-    function showToast(message, isError = true) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
-        toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
-        setTimeout(() => {
-            toast.classList.add('fade-out');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.classList.remove('fade-out');
-            }, 3000);
-        }, 3000);
-    }
 
-    document.getElementById('signup-form').addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const signupBtn = document.getElementById('signup-btn');
-        signupBtn.disabled = true;
-        signupBtn.textContent = 'Signing up...';
+        <!-- Main Signup Card -->
+        <div class="glass-morphism rounded-2xl p-8 shadow-2xl">
+            <form id="signup-form" class="space-y-6">
+                <!-- Full Name Input -->
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="fullname" 
+                        name="fullname" 
+                        placeholder=" "
+                        required
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
+                    >
+                    <label for="fullname" class="floating-label">
+                        <i class="fas fa-user mr-2"></i>Full Name
+                    </label>
+                </div>
 
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+                <!-- Email Input -->
+                <div class="input-group">
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder=" "
+                        required
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
+                    >
+                    <label for="email" class="floating-label">
+                        <i class="fas fa-envelope mr-2"></i>Email Address
+                    </label>
+                </div>
 
-        try {
-            const response = await fetch('http://localhost:8080/api/auth/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
+                <!-- Username Input -->
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder=" "
+                        required
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
+                    >
+                    <label for="username" class="floating-label">
+                        <i class="fas fa-at mr-2"></i>Username
+                    </label>
+                </div>
 
-            if (response.ok) {
-                showToast('Account created successfully!', false);
-                setTimeout(() => {
-                    window.location.href = '/login.html';
-                }, 3000);
-            } else {
-                showToast('Username already exists');
-            }
-        } catch (error) {
-            showToast('Error: ' + error.message);
-        } finally {
-            signupBtn.disabled = false;
-            signupBtn.textContent = 'Sign Up';
+                <!-- Password Input -->
+                <div class="input-group">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder=" "
+                        required
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
+                    >
+                    <label for="password" class="floating-label">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    <div class="password-strength">
+                        <div id="password-strength-bar" class="password-strength-bar"></div>
+                    </div>
+                    <p id="password-hint" class="text-xs text-white/60 mt-2">Use 8+ characters with letters, numbers & symbols</p>
+                </div>
+
+                <!-- Terms and Privacy -->
+                <div class="flex items-start space-x-3">
+                    <input 
+                        type="checkbox" 
+                        id="terms" 
+                        required
+                        class="mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    >
+                    <label for="terms" class="text-sm text-white/80 leading-5">
+                        I agree to the 
+                        <a href="#" class="text-white underline hover:no-underline">Terms of Service</a> 
+                        and 
+                        <a href="#" class="text-white underline hover:no-underline">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Marketing Consent -->
+                <div class="flex items-start space-x-3">
+                    <input 
+                        type="checkbox" 
+                        id="marketing" 
+                        class="mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    >
+                    <label for="marketing" class="text-sm text-white/80 leading-5">
+                        Send me tips, product updates, and special offers
+                    </label>
+                </div>
+
+                <!-- Create Account Button -->
+                <button 
+                    type="submit" 
+                    id="signup-btn"
+                    class="w-full btn-gradient text-white py-3 px-6 rounded-xl font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                    <span id="signup-text">Create Account</span>
+                    <i id="signup-spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="flex items-center my-6">
+                <div class="flex-1 h-px bg-white/20"></div>
+                <span class="px-4 text-white/60 text-sm">or sign up with</span>
+                <div class="flex-1 h-px bg-white/20"></div>
+            </div>
+
+            <!-- Social Signup -->
+            <div class="grid grid-cols-2 gap-3">
+                <button class="social-login flex items-center justify-center py-3 px-4 rounded-xl text-white/80 hover:text-white transition-all">
+                    <i class="fab fa-google mr-2"></i>
+                    Google
+                </button>
+                <button class="social-login flex items-center justify-center py-3 px-4 rounded-xl text-white/80 hover:text-white transition-all">
+                    <i class="fab fa-apple mr-2"></i>
+                    Apple
+                </button>
+            </div>
+
+            <!-- Login Link -->
+            <p class="mt-6 text-center text-white/80">
+                Already have an account? 
+                <a href="/login.html" class="text-white font-semibold hover:underline transition-all ml-1">
+                    Sign in
+                </a>
+            </p>
+        </div>
+
+        <!-- Benefits -->
+        <div class="benefits-grid mt-8">
+            <div class="benefit-item">
+                <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                <span>Free forever</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                <span>No credit card</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                <span>Bank-level security</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                <span>24/7 support</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast bg-red-500 text-white px-6 py-4 rounded-xl shadow-lg">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-3"></i>
+            <span id="toast-message"></span>
+        </div>
+    </div>
+
+    <style>
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
         }
-    });
-</script>
-</body>
-</html>
+        
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+        
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+    </style>
+
+    <script>
+        function showToast(message, isError = true) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            toast.classList.remove('bg-green-500', 'bg-red-500');
+            toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        function updatePasswordStrength(password) {
+            const strengthBar = document.getElementById('password-strength-bar');
+            const hint = document.getElementById('password-hint');
+            
+            let strength = 0;
+            let feedback = '';
+            
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            strengthBar.className = 'password-strength-bar';
+            
+            switch (strength) {
+                case 0:
+                case 1:
+                    strengthBar.classList.add('strength-weak');
+                    feedback = 'Weak password - add more characters';
+                    break;
+                case 2:
+                case 3:
+                    strengthBar.classList.add('strength-fair');
+                    feedback = 'Fair password - add symbols or numbers';
+                    break;
+                case 4:
+                    strengthBar.classList.add('strength-good');
+                    feedback = 'Good password - almost there!';
+                    break;
+                case 5:
+                    strengthBar.classList.add('strength-strong');
+                    feedback = 'Strong password ✓';
+                    break;
+            }
+            
+            hint.textContent = feedback;
+        }
+
+        document.getElementById('password').addEventListener('input', function(e) {
+            updatePasswordStrength(e.target.value);
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const signupBtn = document.getElementById('signup-btn');
+            const signupText = document.getElementById('signup-text');
+            const signupSpinner = document.getElementById('signup-spinner');
+            
+            // Show loading state
+            signupBtn.disabled = true;
+            signupText.textContent = 'Creating account...';
+            signupSpinner.classList.remove('hidden');
+
+            const formData = {
+                fullname: document.getElementById('fullname').value,
+                email: document.getElementById('email').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                terms: document.getElementById('terms').checked,
+                marketing: document.getElementById('marketing').checked
+            };
+
+            // Basic validation
+            if (!formData.terms) {
+                showToast('Please accept the Terms of Service');
+                signupBtn.disabled = false;
+                signupText.textContent = 'Create Account';
+                signupSpinner.classList.add('hidden');
+                return;
+            }
+
+            if (formData.password.length < 8) {
+                showToast('Password must be at least 8 characters long');
+                signupBtn.disabled = false;
+                signupText.textContent = 'Create Account';
+                                signupSpinner.classList.add('hidden');
+                                return;
+                            }
+                
+                            // TODO: Add your signup logic here (e.g., send data to backend)
+                            // For demonstration, show a success toast and reset the form
+                
+                            setTimeout(() => {
+                                showToast('Account created successfully!', false);
+                                signupBtn.disabled = false;
+                                signupText.textContent = 'Create Account';
+                                signupSpinner.classList.add('hidden');
+                                document.getElementById('signup-form').reset();
+                                updatePasswordStrength('');
+                            }, 1500);
+                        });
+                    </script>
+                </body>
+                </html>

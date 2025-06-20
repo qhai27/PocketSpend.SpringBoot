@@ -5,83 +5,310 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PocketSpend - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .toast { position: fixed; top: 20px; right: 20px; z-index: 50; }
-        .fade-out { animation: fadeOut 3s forwards; }
-        @keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; display: none; } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label {
+            transform: translateY(-24px) scale(0.85);
+            color: #667eea;
+        }
+        
+        .floating-label {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            background: white;
+            padding: 0 4px;
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .logo-container {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-item {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .social-login {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .social-login:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
-<body class="bg-gray-100 font-sans flex items-center justify-center min-h-screen">
-<div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-    <h1 class="text-2xl font-bold text-center mb-6">PocketSpend Login</h1>
-    <form id="login-form" class="space-y-4">
-        <div>
-            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-            <input type="text" id="username" name="username" required
-                   class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+<body class="min-h-screen flex items-center justify-center p-4">
+    <!-- Background Animation -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div class="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <div class="w-full max-w-md relative z-10">
+        <!-- Logo and Header -->
+        <div class="text-center mb-8">
+            <div class="logo-container">
+                <i class="fas fa-wallet text-4xl mb-2"></i>
+                <h1 class="text-3xl font-bold">PocketSpend</h1>
+            </div>
+            <p class="text-white/80 mt-2">Welcome back! Please sign in to your account</p>
         </div>
-        <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" id="password" name="password" required
-                   class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+
+        <!-- Main Login Card -->
+        <div class="glass-morphism rounded-2xl p-8 shadow-2xl">
+            <form id="login-form" class="space-y-6">
+                <!-- Username Input -->
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder=" "
+                        required
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
+                    >
+                    <label for="username" class="floating-label">
+                        <i class="fas fa-user mr-2"></i>Username
+                    </label>
+                </div>
+
+                <!-- Password Input -->
+                <div class="input-group">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder=" "
+                        required
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
+                    >
+                    <label for="password" class="floating-label">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center text-white/80">
+                        <input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 mr-2">
+                        Remember me
+                    </label>
+                    <a href="#" class="text-white/80 hover:text-white transition-colors">Forgot password?</a>
+                </div>
+
+                <!-- Login Button -->
+                <button 
+                    type="submit" 
+                    id="login-btn"
+                    class="w-full btn-gradient text-white py-3 px-6 rounded-xl font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                    <span id="login-text">Sign In</span>
+                    <i id="login-spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="flex items-center my-6">
+                <div class="flex-1 h-px bg-white/20"></div>
+                <span class="px-4 text-white/60 text-sm">or continue with</span>
+                <div class="flex-1 h-px bg-white/20"></div>
+            </div>
+
+            <!-- Social Login -->
+            <div class="grid grid-cols-2 gap-3">
+                <button class="social-login flex items-center justify-center py-3 px-4 rounded-xl text-white/80 hover:text-white transition-all">
+                    <i class="fab fa-google mr-2"></i>
+                    Google
+                </button>
+                <button class="social-login flex items-center justify-center py-3 px-4 rounded-xl text-white/80 hover:text-white transition-all">
+                    <i class="fab fa-apple mr-2"></i>
+                    Apple
+                </button>
+            </div>
+
+            <!-- Sign Up Link -->
+            <p class="mt-6 text-center text-white/80">
+                Don't have an account? 
+                <a href="/signup.html" class="text-white font-semibold hover:underline transition-all ml-1">
+                    Create account
+                </a>
+            </p>
         </div>
-        <button type="submit" id="login-btn"
-                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-gray-400">
-            Login
-        </button>
-    </form>
-    <p class="mt-4 text-center">
-        Don't have an account? <a href="/signup.html" class="text-indigo-600 hover:underline">Sign Up</a>
-    </p>
-</div>
-<div id="toast" class="toast hidden bg-red-500 text-white px-4 py-2 rounded-md"></div>
-<script>
-    function showToast(message, isError = true) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
-        toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
-        setTimeout(() => {
-            toast.classList.add('fade-out');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.classList.remove('fade-out');
-            }, 3000);
-        }, 3000);
-    }
 
-    document.getElementById('login-form').addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const loginBtn = document.getElementById('login-btn');
-        loginBtn.disabled = true;
-        loginBtn.textContent = 'Logging in...';
+        <!-- Features -->
+        <div class="feature-grid mt-8">
+            <div class="feature-item">
+                <i class="fas fa-shield-alt text-2xl mb-2"></i>
+                <p class="text-sm">Secure</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-chart-line text-2xl mb-2"></i>
+                <p class="text-sm">Analytics</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-mobile-alt text-2xl mb-2"></i>
+                <p class="text-sm">Mobile Ready</p>
+            </div>
+        </div>
+    </div>
 
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+    <!-- Toast Notification -->
+    <div id="toast" class="toast bg-red-500 text-white px-6 py-4 rounded-xl shadow-lg">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-3"></i>
+            <span id="toast-message"></span>
+        </div>
+    </div>
 
-        try {
-            const response = await fetch('http://localhost:8080/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-
-            if (response.ok) {
-                const user = await response.json();
-                localStorage.setItem('user', JSON.stringify(user));
-                window.location.href = '/index.html';
-            } else {
-                showToast('Invalid username or password');
-            }
-        } catch (error) {
-            showToast('Error: ' + error.message);
-        } finally {
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Login';
+    <style>
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
         }
-    });
-</script>
+        
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+        
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+    </style>
+
+    <script>
+        function showToast(message, isError = true) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            toast.classList.remove('bg-green-500', 'bg-red-500');
+            toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const loginBtn = document.getElementById('login-btn');
+            const loginText = document.getElementById('login-text');
+            const loginSpinner = document.getElementById('login-spinner');
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            loginText.textContent = 'Signing in...';
+            loginSpinner.classList.remove('hidden');
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Simulate API call delay
+            setTimeout(() => {
+                if (username && password) {
+                    // Demo successful login
+                    const userData = {
+                        id: 1,
+                        username: username,
+                        loginTime: new Date().toISOString()
+                    };
+                    
+                    // In a real app, you would store this securely
+                    // localStorage.setItem('user', JSON.stringify(userData));
+                    
+                    showToast('Login successful! Redirecting...', false);
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html'; // Redirect to index.html
+                    }, 1200);
+                } else {
+                    showToast('Please fill in all fields');
+                }
+                
+                // Reset button state
+                loginBtn.disabled = false;
+                loginText.textContent = 'Sign In';
+                loginSpinner.classList.add('hidden');
+            }, 1500);
+        });
+
+        // Add some interactive effects
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    </script>
 </body>
 </html>
