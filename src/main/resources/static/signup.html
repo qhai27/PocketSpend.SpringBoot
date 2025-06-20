@@ -165,35 +165,7 @@
         <!-- Main Signup Card -->
         <div class="glass-morphism rounded-2xl p-8 shadow-2xl">
             <form id="signup-form" class="space-y-6">
-                <!-- Full Name Input -->
-                <div class="input-group">
-                    <input 
-                        type="text" 
-                        id="fullname" 
-                        name="fullname" 
-                        placeholder=" "
-                        required
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
-                    >
-                    <label for="fullname" class="floating-label">
-                        <i class="fas fa-user mr-2"></i>Full Name
-                    </label>
-                </div>
-
-                <!-- Email Input -->
-                <div class="input-group">
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        placeholder=" "
-                        required
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
-                    >
-                    <label for="email" class="floating-label">
-                        <i class="fas fa-envelope mr-2"></i>Email Address
-                    </label>
-                </div>
+            
 
                 <!-- Username Input -->
                 <div class="input-group">
@@ -267,25 +239,6 @@
                     <i id="signup-spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
                 </button>
             </form>
-
-            <!-- Divider -->
-            <div class="flex items-center my-6">
-                <div class="flex-1 h-px bg-white/20"></div>
-                <span class="px-4 text-white/60 text-sm">or sign up with</span>
-                <div class="flex-1 h-px bg-white/20"></div>
-            </div>
-
-            <!-- Social Signup -->
-            <div class="grid grid-cols-2 gap-3">
-                <button class="social-login flex items-center justify-center py-3 px-4 rounded-xl text-white/80 hover:text-white transition-all">
-                    <i class="fab fa-google mr-2"></i>
-                    Google
-                </button>
-                <button class="social-login flex items-center justify-center py-3 px-4 rounded-xl text-white/80 hover:text-white transition-all">
-                    <i class="fab fa-apple mr-2"></i>
-                    Apple
-                </button>
-            </div>
 
             <!-- Login Link -->
             <p class="mt-6 text-center text-white/80">
@@ -417,8 +370,6 @@
             signupSpinner.classList.remove('hidden');
 
             const formData = {
-                fullname: document.getElementById('fullname').value,
-                email: document.getElementById('email').value,
                 username: document.getElementById('username').value,
                 password: document.getElementById('password').value,
                 terms: document.getElementById('terms').checked,
@@ -438,22 +389,37 @@
                 showToast('Password must be at least 8 characters long');
                 signupBtn.disabled = false;
                 signupText.textContent = 'Create Account';
-                                signupSpinner.classList.add('hidden');
-                                return;
-                            }
-                
-                            // TODO: Add your signup logic here (e.g., send data to backend)
-                            // For demonstration, show a success toast and reset the form
-                
-                            setTimeout(() => {
-                                showToast('Account created successfully!', false);
-                                signupBtn.disabled = false;
-                                signupText.textContent = 'Create Account';
-                                signupSpinner.classList.add('hidden');
-                                document.getElementById('signup-form').reset();
-                                updatePasswordStrength('');
-                            }, 1500);
-                        });
-                    </script>
-                </body>
-                </html>
+                signupSpinner.classList.add('hidden');
+                return;
+            }
+
+            // Send data to backend
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showToast('Account created successfully!', false);
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1200);
+                } else {
+                    const error = await response.text();
+                    showToast(error || 'Signup failed');
+                }
+            } catch (err) {
+                showToast('Network error');
+            } finally {
+                signupBtn.disabled = false;
+                signupText.textContent = 'Create Account';
+                signupSpinner.classList.add('hidden');
+                document.getElementById('signup-form').reset();
+                updatePasswordStrength('');
+            }
+        });
+    </script>
+</body>
+</html>
