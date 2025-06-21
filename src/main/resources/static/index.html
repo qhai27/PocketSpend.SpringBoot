@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PocketSpend - Smart Expense Tracking</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -83,353 +85,363 @@
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-    <!-- Modern Navigation -->
-    <nav class="gradient-bg text-white shadow-xl relative overflow-hidden">
-        <div class="absolute inset-0 bg-white opacity-10"></div>
-        <div class="container mx-auto px-6 py-4 relative">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-                        <span class="text-2xl">💳</span>
-                    </div>
-                    <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
-                        PocketSpend
-                    </h1>
+<!-- Modern Navigation -->
+<nav class="gradient-bg text-white shadow-xl relative overflow-hidden">
+    <div class="absolute inset-0 bg-white opacity-10"></div>
+    <div class="container mx-auto px-6 py-4 relative">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+                    <span class="text-2xl">💳</span>
                 </div>
-                <div class="hidden md:flex items-center space-x-1">
-                    <button class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20" data-section="dashboard">
-                        📊 Dashboard
-                    </button>
-                    <button class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20" data-section="add-expense">
-                        ➕ Add Expense
-                    </button>
-                    <button class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20" data-section="view-expenses">
-                        📋 Expenses
-                    </button>
-                    <button class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20" data-section="budget">
-                        🎯 Budget
-                    </button>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <span id="username-display" class="hidden md:block text-sm opacity-90"></span>
-                    <button id="logout-btn" class="p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200">
-                        🚪 Logout
-                    </button>
-                </div>
+                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+                    PocketSpend
+                </h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-1">
+                <button class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20" data-section="dashboard">
+                    📊 Dashboard
+                </button>
+                <button class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20" data-section="add-expense">
+                    ➕ Add Expense
+                </button>
+                <button class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20" data-section="view-expenses">
+                    📋 Expenses
+                </button>
+                <button class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20" data-section="budget">
+                    🎯 Budget
+                </button>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="username-display" class="hidden md:block text-sm opacity-90"></span>
+                <button id="logout-btn" class="p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                    🚪 Logout
+                </button>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- Mobile Navigation -->
-    <div class="md:hidden bg-white shadow-lg sticky top-0 z-40">
-        <div class="flex justify-around py-2">
-            <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="dashboard">
-                <span class="text-lg mb-1">📊</span>
-                <span>Dashboard</span>
-            </button>
-            <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="add-expense">
-                <span class="text-lg mb-1">➕</span>
-                <span>Add</span>
-            </button>
-            <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="view-expenses">
-                <span class="text-lg mb-1">📋</span>
-                <span>Expenses</span>
-            </button>
-            <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="budget">
-                <span class="text-lg mb-1">🎯</span>
-                <span>Budget</span>
-            </button>
+<!-- Mobile Navigation -->
+<div class="md:hidden bg-white shadow-lg sticky top-0 z-40">
+    <div class="flex justify-around py-2">
+        <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="dashboard">
+            <span class="text-lg mb-1">📊</span>
+            <span>Dashboard</span>
+        </button>
+        <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="add-expense">
+            <span class="text-lg mb-1">➕</span>
+            <span>Add</span>
+        </button>
+        <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="view-expenses">
+            <span class="text-lg mb-1">📋</span>
+            <span>Expenses</span>
+        </button>
+        <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="budget">
+            <span class="text-lg mb-1">🎯</span>
+            <span>Budget</span>
+        </button>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="section animate-fade-in">
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Financial Overview</h2>
+            <p class="text-gray-600">Track your spending with style and precision</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Budget Card -->
+            <div class="card-hover bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
+                        <span class="text-white text-xl">💰</span>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">This Month</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-budget">$0.00</h3>
+                <p class="text-sm text-gray-600">Total Budget</p>
+            </div>
+
+            <!-- Expenses Card -->
+            <div class="card-hover bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-red-400 to-pink-500 rounded-xl flex items-center justify-center">
+                        <span class="text-white text-xl">💸</span>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">Spent</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-expenses">$0.00</h3>
+                <p class="text-sm text-gray-600">Total Expenses</p>
+            </div>
+
+            <!-- Remaining Card -->
+            <div class="card-hover bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center">
+                        <span class="text-white text-xl">🎯</span>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">Left</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-remaining">$0.00</h3>
+                <p class="text-sm text-gray-600">Budget Remaining</p>
+            </div>
+        </div>
+
+        <!-- Recent Expenses -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Expenses</h3>
+            <div id="recent-expenses" class="space-y-3">
+                <!-- Recent expenses will be populated here -->
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <div class="bg-white rounded-xl p-4 shadow border">
+                <h3 class="text-lg font-semibold mb-2 text-gray-800">Expenses Breakdown (Pie)</h3>
+                <canvas id="expensePieChart" height="200"></canvas>
+            </div>
+            <div class="bg-white rounded-xl p-4 shadow border">
+                <h3 class="text-lg font-semibold mb-2 text-gray-800">Expenses Over Time (Bar)</h3>
+                <canvas id="expenseBarChart" height="200"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Add Expense Section -->
+    <div id="add-expense" class="section section-hidden">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-8 text-white">
+                    <h2 class="text-2xl font-bold mb-2">Add New Expense</h2>
+                    <p class="opacity-90">Keep track of every penny spent</p>
+                </div>
+
+                <form id="expense-form" class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="amount" class="block text-sm font-semibold text-gray-700 mb-2">Amount</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-gray-500 text-lg">$</span>
+                                <input type="number" id="amount" step="0.01" required
+                                       class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="expenseDate" class="block text-sm font-semibold text-gray-700 mb-2">Date</label>
+                            <input type="date" id="expenseDate" required
+                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                        <input type="text" id="title" required placeholder="e.g., Coffee at Starbucks"
+                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Description (Optional)</label>
+                        <textarea id="description" rows="3" placeholder="Add any additional notes..."
+                                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="receiptImage" class="block text-sm font-semibold text-gray-700 mb-2">Receipt Image</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors duration-200">
+                            <input type="file" id="receiptImage" accept="image/*" class="hidden">
+                            <label for="receiptImage" class="cursor-pointer">
+                                <div class="text-gray-400 mb-2">
+                                    <span class="text-4xl">📷</span>
+                                </div>
+                                <p class="text-sm text-gray-600">Click to upload receipt image</p>
+                                <p class="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn"
+                            class="w-full btn-gradient text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:transform-none">
+                        💾 Add Expense
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <!-- Dashboard Section -->
-        <div id="dashboard" class="section animate-fade-in">
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Financial Overview</h2>
-                <p class="text-gray-600">Track your spending with style and precision</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <!-- Budget Card -->
-                <div class="card-hover bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
-                            <span class="text-white text-xl">💰</span>
-                        </div>
-                        <span class="text-sm text-gray-500 font-medium">This Month</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-budget">$0.00</h3>
-                    <p class="text-sm text-gray-600">Total Budget</p>
-                </div>
-
-                <!-- Expenses Card -->
-                <div class="card-hover bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-r from-red-400 to-pink-500 rounded-xl flex items-center justify-center">
-                            <span class="text-white text-xl">💸</span>
-                        </div>
-                        <span class="text-sm text-gray-500 font-medium">Spent</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-expenses">$0.00</h3>
-                    <p class="text-sm text-gray-600">Total Expenses</p>
-                </div>
-
-                <!-- Remaining Card -->
-                <div class="card-hover bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center">
-                            <span class="text-white text-xl">🎯</span>
-                        </div>
-                        <span class="text-sm text-gray-500 font-medium">Left</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-remaining">$0.00</h3>
-                    <p class="text-sm text-gray-600">Budget Remaining</p>
-                </div>
+    <!-- View Expenses Section -->
+    <div id="view-expenses" class="section section-hidden">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-6 text-white">
+                <h2 class="text-2xl font-bold">Your Expenses</h2>
+                <p class="opacity-90 mt-1">Manage and review all your transactions</p>
             </div>
 
-            <!-- Recent Expenses -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Expenses</h3>
-                <div id="recent-expenses" class="space-y-3">
-                    <!-- Recent expenses will be populated here -->
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="border-b border-gray-200">
+                        <tr class="text-left">
+                            <th class="py-4 px-2 font-semibold text-gray-700">Title</th>
+                            <th class="py-4 px-2 font-semibold text-gray-700">Amount</th>
+                            <th class="py-4 px-2 font-semibold text-gray-700">Date</th>
+                            <th class="py-4 px-2 font-semibold text-gray-700">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="expense-table-body" class="divide-y divide-gray-100">
+                        <!-- Expenses will be populated here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Add Expense Section -->
-        <div id="add-expense" class="section section-hidden">
-            <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-8 text-white">
-                        <h2 class="text-2xl font-bold mb-2">Add New Expense</h2>
-                        <p class="opacity-90">Keep track of every penny spent</p>
+    <!-- Budget Section -->
+    <div id="budget" class="section section-hidden">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-8 text-white">
+                    <h2 class="text-2xl font-bold mb-2">Budget Management</h2>
+                    <p class="opacity-90">Set your financial goals and track progress</p>
+                </div>
+
+                <div class="p-6">
+                    <!-- Budget Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div class="text-center p-4 bg-gray-50 rounded-xl">
+                            <div class="text-2xl font-bold text-gray-800" id="current-budget">$0.00</div>
+                            <div class="text-sm text-gray-600">Current Budget</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-xl">
+                            <div class="text-2xl font-bold text-gray-800" id="total-expenses">$0.00</div>
+                            <div class="text-sm text-gray-600">Total Spent</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-xl">
+                            <div class="text-2xl font-bold text-gray-800" id="budget-left">$0.00</div>
+                            <div class="text-sm text-gray-600">Remaining</div>
+                        </div>
                     </div>
-                    
-                    <form id="expense-form" class="p-6 space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="amount" class="block text-sm font-semibold text-gray-700 mb-2">Amount</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-3 text-gray-500 text-lg">$</span>
-                                    <input type="number" id="amount" step="0.01" required
-                                           class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                                </div>
-                            </div>
-                            <div>
-                                <label for="expenseDate" class="block text-sm font-semibold text-gray-700 mb-2">Date</label>
-                                <input type="date" id="expenseDate" required
-                                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                            </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-semibold text-gray-700">Budget Usage</span>
+                            <span class="text-sm text-gray-600" id="budget-percentage">0%</span>
                         </div>
-                        
-                        <div>
-                            <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
-                            <input type="text" id="title" required placeholder="e.g., Coffee at Starbucks"
-                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="budget-progress" class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
                         </div>
-                        
+                    </div>
+
+                    <!-- Set Budget Form -->
+                    <form id="budget-form" class="space-y-6">
                         <div>
-                            <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Description (Optional)</label>
-                            <textarea id="description" rows="3" placeholder="Add any additional notes..."
-                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"></textarea>
-                        </div>
-                        
-                        <div>
-                            <label for="receiptImage" class="block text-sm font-semibold text-gray-700 mb-2">Receipt Image</label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors duration-200">
-                                <input type="file" id="receiptImage" accept="image/*" class="hidden">
-                                <label for="receiptImage" class="cursor-pointer">
-                                    <div class="text-gray-400 mb-2">
-                                        <span class="text-4xl">📷</span>
-                                    </div>
-                                    <p class="text-sm text-gray-600">Click to upload receipt image</p>
-                                    <p class="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
-                                </label>
+                            <label for="budget-amount" class="block text-sm font-semibold text-gray-700 mb-2">Set New Budget</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-gray-500 text-lg">$</span>
+                                <input type="number" id="budget-amount" step="0.01" required
+                                       class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                       placeholder="Enter your budget amount">
                             </div>
                         </div>
-                        
-                        <button type="submit" id="submit-btn"
-                                class="w-full btn-gradient text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:transform-none">
-                            💾 Add Expense
+
+                        <button type="submit"
+                                class="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                            🎯 Set Budget
                         </button>
                     </form>
                 </div>
             </div>
         </div>
-
-        <!-- View Expenses Section -->
-        <div id="view-expenses" class="section section-hidden">
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-6 text-white">
-                    <h2 class="text-2xl font-bold">Your Expenses</h2>
-                    <p class="opacity-90 mt-1">Manage and review all your transactions</p>
-                </div>
-                
-                <div class="p-6">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="border-b border-gray-200">
-                                <tr class="text-left">
-                                    <th class="py-4 px-2 font-semibold text-gray-700">Title</th>
-                                    <th class="py-4 px-2 font-semibold text-gray-700">Amount</th>
-                                    <th class="py-4 px-2 font-semibold text-gray-700">Date</th>
-                                    <th class="py-4 px-2 font-semibold text-gray-700">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="expense-table-body" class="divide-y divide-gray-100">
-                                <!-- Expenses will be populated here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Budget Section -->
-        <div id="budget" class="section section-hidden">
-            <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                    <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-8 text-white">
-                        <h2 class="text-2xl font-bold mb-2">Budget Management</h2>
-                        <p class="opacity-90">Set your financial goals and track progress</p>
-                    </div>
-                    
-                    <div class="p-6">
-                        <!-- Budget Stats -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <div class="text-2xl font-bold text-gray-800" id="current-budget">$0.00</div>
-                                <div class="text-sm text-gray-600">Current Budget</div>
-                            </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <div class="text-2xl font-bold text-gray-800" id="total-expenses">$0.00</div>
-                                <div class="text-sm text-gray-600">Total Spent</div>
-                            </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <div class="text-2xl font-bold text-gray-800" id="budget-left">$0.00</div>
-                                <div class="text-sm text-gray-600">Remaining</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Progress Bar -->
-                        <div class="mb-8">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-semibold text-gray-700">Budget Usage</span>
-                                <span class="text-sm text-gray-600" id="budget-percentage">0%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div id="budget-progress" class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Set Budget Form -->
-                        <form id="budget-form" class="space-y-6">
-                            <div>
-                                <label for="budget-amount" class="block text-sm font-semibold text-gray-700 mb-2">Set New Budget</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-3 text-gray-500 text-lg">$</span>
-                                    <input type="number" id="budget-amount" step="0.01" required
-                                           class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                                           placeholder="Enter your budget amount">
-                                </div>
-                            </div>
-                            
-                            <button type="submit"
-                                    class="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-                                🎯 Set Budget
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+</div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast hidden px-6 py-4 rounded-xl shadow-lg max-w-sm">
-        <!-- Toast content will be set dynamically -->
+<!-- Toast Notification -->
+<div id="toast" class="toast hidden px-6 py-4 rounded-xl shadow-lg max-w-sm">
+    <!-- Toast content will be set dynamically -->
+</div>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white text-center py-8 mt-16">
+    <div class="container mx-auto px-4">
+        <p class="mb-2">© 2025 PocketSpend. Made with ❤️ for smart spenders.</p>
+        <p class="text-gray-400 text-sm">Track smart, spend smarter.</p>
     </div>
+</footer>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white text-center py-8 mt-16">
-        <div class="container mx-auto px-4">
-            <p class="mb-2">© 2025 PocketSpend. Made with ❤️ for smart spenders.</p>
-            <p class="text-gray-400 text-sm">Track smart, spend smarter.</p>
-        </div>
-    </footer>
+<script>
 
-    <script>
-        // Mock user data (replace with actual authentication)
-        const user = { id: 1, username: 'Young Spender' };
-        if (user) {
-            document.getElementById('username-display').textContent = `Hey, ${user.username}! 👋`;
-        }
+    document.getElementById('username-display').textContent = `Hye 👋`;
 
-        // In-memory data storage
-        let expenses = [];
-        let budget = { totalBudget: 0, totalExpenses: 0, budgetLeft: 0 };
+    // In-memory data storage
+    let expenses = [];
+    let budget = { totalBudget: 0, totalExpenses: 0, budgetLeft: 0 };
 
-        // Navigation handling
-        document.addEventListener('DOMContentLoaded', function() {
-            const navButtons = document.querySelectorAll('.nav-btn');
-            const sections = document.querySelectorAll('.section');
+    // Navigation handling
+    document.addEventListener('DOMContentLoaded', function() {
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const sections = document.querySelectorAll('.section');
 
-            navButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const targetSection = this.getAttribute('data-section');
-                    
-                    // Remove active class from all nav buttons
-                    navButtons.forEach(btn => btn.classList.remove('nav-active', 'bg-white', 'bg-opacity-20', 'text-blue-600'));
-                    
-                    // Add active class to clicked button
-                    this.classList.add('nav-active');
-                    
-                    // Hide all sections
-                    sections.forEach(section => section.classList.add('section-hidden'));
-                    
-                    // Show target section
-                    document.getElementById(targetSection).classList.remove('section-hidden');
-                });
+        navButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetSection = this.getAttribute('data-section');
+
+                // Remove active class from all nav buttons
+                navButtons.forEach(btn => btn.classList.remove('nav-active', 'bg-white', 'bg-opacity-20', 'text-blue-600'));
+
+                // Add active class to clicked button
+                this.classList.add('nav-active');
+
+                // Hide all sections
+                sections.forEach(section => section.classList.add('section-hidden'));
+
+                // Show target section
+                document.getElementById(targetSection).classList.remove('section-hidden');
             });
-
-            // Set default date to today
-            document.getElementById('expenseDate').valueAsDate = new Date();
-
-            // Load initial data
-            loadExpenses();
-            loadBudget();
         });
 
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-            const icon = type === 'success' ? '✅' : '❌';
-            
-            toast.innerHTML = `
+        // Set default date to today
+        document.getElementById('expenseDate').valueAsDate = new Date();
+
+        // Load initial data
+        loadExpenses();
+        loadBudget();
+    });
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+        const icon = type === 'success' ? '✅' : '❌';
+
+        toast.innerHTML = `
                 <div class="flex items-center space-x-3">
                     <span class="text-xl">${icon}</span>
                     <span class="font-medium">${message}</span>
                 </div>
             `;
-            
-            toast.className = `toast ${bgColor} text-white animate-bounce-in`;
-            
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
-        }
 
-        // Load expenses
-        function loadExpenses() {
-            const tableBody = document.getElementById('expense-table-body');
-            const recentExpenses = document.getElementById('recent-expressions');
-            
-            tableBody.innerHTML = '';
-            
-            if (expenses.length === 0) {
-                tableBody.innerHTML = `
+        toast.className = `toast ${bgColor} text-white animate-bounce-in`;
+
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 3000);
+    }
+
+    // Load expenses
+    function loadExpenses() {
+        const tableBody = document.getElementById('expense-table-body');
+        const recentExpenses = document.getElementById('recent-expressions');
+
+        tableBody.innerHTML = '';
+
+        if (expenses.length === 0) {
+            tableBody.innerHTML = `
                     <tr>
                         <td colspan="4" class="text-center py-8 text-gray-500">
                             <div class="text-4xl mb-2">📝</div>
@@ -437,11 +449,11 @@
                         </td>
                     </tr>
                 `;
-            } else {
-                expenses.forEach((expense, index) => {
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50 transition-colors duration-200';
-                    row.innerHTML = `
+        } else {
+            expenses.forEach((expense, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors duration-200';
+                row.innerHTML = `
                         <td class="py-4 px-2">
                             <div class="font-medium text-gray-900">${expense.title}</div>
                             ${expense.description ? `<div class="text-sm text-gray-500">${expense.description}</div>` : ''}
@@ -457,62 +469,64 @@
                             </button>
                         </td>
                     `;
-                    tableBody.appendChild(row);
-                });
-            }
-
-            updateDashboard();
+                tableBody.appendChild(row);
+            });
         }
 
-        // Load budget
-        function loadBudget() {
-            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-            budget.totalExpenses = totalExpenses;
-            budget.budgetLeft = budget.totalBudget - totalExpenses;
+        updateDashboard();
+        renderCharts();
 
-            document.getElementById('current-budget').textContent = budget.totalBudget ? `$${budget.totalBudget.toFixed(2)}` : '$0.00';
-            document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
-            document.getElementById('budget-left').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
+    }
 
-            // Update progress bar
-            if (budget.totalBudget > 0) {
-                const percentage = Math.min((totalExpenses / budget.totalBudget) * 100, 100);
-                document.getElementById('budget-progress').style.width = `${percentage}%`;
-                document.getElementById('budget-percentage').textContent = `${percentage.toFixed(1)}%`;
-                
-                // Change color based on usage
-                const progressBar = document.getElementById('budget-progress');
-                if (percentage > 90) {
-                    progressBar.className = 'bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500';
-                } else if (percentage > 75) {
-                    progressBar.className = 'bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500';
-                } else {
-                    progressBar.className = 'bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500';
-                }
+    // Load budget
+    function loadBudget() {
+        const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        budget.totalExpenses = totalExpenses;
+        budget.budgetLeft = budget.totalBudget - totalExpenses;
+
+        document.getElementById('current-budget').textContent = budget.totalBudget ? `$${budget.totalBudget.toFixed(2)}` : '$0.00';
+        document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
+        document.getElementById('budget-left').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
+
+        // Update progress bar
+        if (budget.totalBudget > 0) {
+            const percentage = Math.min((totalExpenses / budget.totalBudget) * 100, 100);
+            document.getElementById('budget-progress').style.width = `${percentage}%`;
+            document.getElementById('budget-percentage').textContent = `${percentage.toFixed(1)}%`;
+
+            // Change color based on usage
+            const progressBar = document.getElementById('budget-progress');
+            if (percentage > 90) {
+                progressBar.className = 'bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500';
+            } else if (percentage > 75) {
+                progressBar.className = 'bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500';
+            } else {
+                progressBar.className = 'bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500';
             }
-
-            updateDashboard();
         }
 
-        // Update dashboard
-        function updateDashboard() {
-            document.getElementById('dashboard-budget').textContent = budget.totalBudget ? `$${budget.totalBudget.toFixed(2)}` : '$0.00';
-            document.getElementById('dashboard-expenses').textContent = `$${budget.totalExpenses.toFixed(2)}`;
-            document.getElementById('dashboard-remaining').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
+        updateDashboard();
+    }
 
-            // Update recent expenses
-            const recentExpensesContainer = document.getElementById('recent-expenses');
-            const recentExpenses = expenses.slice(-5).reverse();
-            
-            if (recentExpenses.length === 0) {
-                recentExpensesContainer.innerHTML = `
+    // Update dashboard
+    function updateDashboard() {
+        document.getElementById('dashboard-budget').textContent = budget.totalBudget ? `$${budget.totalBudget.toFixed(2)}` : '$0.00';
+        document.getElementById('dashboard-expenses').textContent = `$${budget.totalExpenses.toFixed(2)}`;
+        document.getElementById('dashboard-remaining').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
+
+        // Update recent expenses
+        const recentExpensesContainer = document.getElementById('recent-expenses');
+        const recentExpenses = expenses.slice(-5).reverse();
+
+        if (recentExpenses.length === 0) {
+            recentExpensesContainer.innerHTML = `
                     <div class="text-center py-8 text-gray-500">
                         <div class="text-4xl mb-2">💸</div>
                         <p>No recent expenses to show</p>
                     </div>
                 `;
-            } else {
-                recentExpensesContainer.innerHTML = recentExpenses.map(expense => `
+        } else {
+            recentExpensesContainer.innerHTML = recentExpenses.map(expense => `
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div>
                             <div class="font-medium text-gray-900">${expense.title}</div>
@@ -521,65 +535,133 @@
                         <div class="font-semibold text-lg text-gray-900">$${expense.amount.toFixed(2)}</div>
                     </div>
                 `).join('');
-            }
         }
+    }
 
-        // Handle expense form submission
-        document.getElementById('expense-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '⏳ Adding...';
+    // Handle expense form submission
+    document.getElementById('expense-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '⏳ Adding...';
 
-            const newExpense = {
-                title: document.getElementById('title').value,
-                amount: parseFloat(document.getElementById('amount').value),
-                expenseDate: document.getElementById('expenseDate').value,
-                description: document.getElementById('description').value,
-                id: Date.now()
-            };
+        const newExpense = {
+            title: document.getElementById('title').value,
+            amount: parseFloat(document.getElementById('amount').value),
+            expenseDate: document.getElementById('expenseDate').value,
+            description: document.getElementById('description').value,
+            id: Date.now()
+        };
 
-            // Simulate API delay
-            setTimeout(() => {
-                expenses.push(newExpense);
-                showToast('Expense added successfully! 🎉');
-                document.getElementById('expense-form').reset();
-                document.getElementById('expenseDate').valueAsDate = new Date();
-                loadExpenses();
-                loadBudget();
-                
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '💾 Add Expense';
-            }, 500);
-        });
-
-        // Handle delete expense
-        function deleteExpense(index) {
-            expenses.splice(index, 1);
-            showToast('Expense deleted successfully! 🗑️');
+        // Simulate API delay
+        setTimeout(() => {
+            expenses.push(newExpense);
+            showToast('Expense added successfully! 🎉');
+            document.getElementById('expense-form').reset();
+            document.getElementById('expenseDate').valueAsDate = new Date();
             loadExpenses();
             loadBudget();
-        }
 
-        // Handle budget form submission
-        document.getElementById('budget-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const budgetAmount = parseFloat(document.getElementById('budget-amount').value);
-            
-            budget.totalBudget = budgetAmount;
-            showToast('Budget set successfully! 🎯');
-            document.getElementById('budget-form').reset();
-            loadBudget();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '💾 Add Expense';
+        }, 500);
+    });
+
+    // Handle delete expense
+    function deleteExpense(index) {
+        expenses.splice(index, 1);
+        showToast('Expense deleted successfully! 🗑️');
+        loadExpenses();
+        loadBudget();
+    }
+
+    // Handle budget form submission
+    document.getElementById('budget-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const budgetAmount = parseFloat(document.getElementById('budget-amount').value);
+
+        budget.totalBudget = budgetAmount;
+        showToast('Budget set successfully! 🎯');
+        document.getElementById('budget-form').reset();
+        loadBudget();
+    });
+
+    // Handle logout
+    document.getElementById('logout-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        showToast('Logged out successfully! 👋');
+        setTimeout(() => {
+            window.location.href = 'login.html'; // Redirect to login page
+        }, 1000);
+    });
+
+    let pieChartInstance = null;
+    let barChartInstance = null;
+
+    function renderCharts() {
+        const pieCtx = document.getElementById('expensePieChart').getContext('2d');
+        const barCtx = document.getElementById('expenseBarChart').getContext('2d');
+
+        const labels = expenses.map(e => e.title);
+        const amounts = expenses.map(e => e.amount);
+
+        // Destroy existing charts if they exist to prevent duplicates
+        if (pieChartInstance) pieChartInstance.destroy();
+        if (barChartInstance) barChartInstance.destroy();
+
+        // PIE Chart
+        pieChartInstance = new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: amounts,
+                    backgroundColor: [
+                        '#3b82f6', '#8b5cf6', '#34d399',
+                        '#f87171', '#fbbf24', '#10b981',
+                        '#f472b6', '#60a5fa', '#f59e0b'
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
         });
 
-        // Handle logout
-        document.getElementById('logout-btn').addEventListener('click', function(event) {
-            event.preventDefault();
-            showToast('Logged out successfully! 👋');
-            setTimeout(() => {
-                window.location.href = 'login.html'; // Redirect to login page
-            }, 1000);
+        // BAR Chart
+        barChartInstance = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Amount Spent',
+                    data: amounts,
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
         });
-    </script>
+    }
+
+</script>
 </body>
 </html>
+

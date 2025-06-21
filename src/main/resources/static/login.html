@@ -108,8 +108,9 @@
         <div class="text-center mb-8">
             <div class="logo-container">
                 <i class="fas fa-wallet text-4xl mb-2"></i>
-                <h1 class="text-3xl font-bold">PocketSpend</h1>
             </div>
+
+            <h1 class="text-3xl font-bold text-white drop-shadow-md">PocketSpend</h1>
             <p class="text-white/80 mt-2">Welcome back! Please sign in to your account</p>
         </div>
 
@@ -227,12 +228,12 @@
         function showToast(message, isError = true) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
-            
+
             toastMessage.textContent = message;
             toast.classList.remove('bg-green-500', 'bg-red-500');
             toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
             toast.classList.add('show');
-            
+
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 4000);
@@ -240,12 +241,11 @@
 
         document.getElementById('login-form').addEventListener('submit', async function(event) {
             event.preventDefault();
-            
+
             const loginBtn = document.getElementById('login-btn');
             const loginText = document.getElementById('login-text');
             const loginSpinner = document.getElementById('login-spinner');
-            
-            // Show loading state
+
             loginBtn.disabled = true;
             loginText.textContent = 'Signing in...';
             loginSpinner.classList.remove('hidden');
@@ -253,45 +253,36 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Simulate API call delay
-            setTimeout(() => {
-                if (username && password) {
-                    // Demo successful login
-                    const userData = {
-                        id: 1,
-                        username: username,
-                        loginTime: new Date().toISOString()
-                    };
-                    
-                    // In a real app, you would store this securely
-                    // localStorage.setItem('user', JSON.stringify(userData));
-                    
-                    showToast('Login successful! Redirecting...', false);
-                    
-                    setTimeout(() => {
-                        window.location.href = 'index.html'; // Redirect to index.html
-                    }, 1200);
-                } else {
-                    showToast('Please fill in all fields');
-                }
-                
-                // Reset button state
-                loginBtn.disabled = false;
-                loginText.textContent = 'Sign In';
-                loginSpinner.classList.add('hidden');
-            }, 1500);
-        });
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
 
-        // Add some interactive effects
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.classList.remove('focused');
-            });
+                if (!response.ok) {
+                    throw new Error("Login failed");
+                }
+
+                const userData = await response.json();
+                localStorage.setItem('user', JSON.stringify(userData)); // optionally store
+
+                showToast('Login successful! Redirecting...', false);
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1200);
+
+            } catch (error) {
+                showToast('Invalid username or password');
+            }
+
+            loginBtn.disabled = false;
+            loginText.textContent = 'Sign In';
+            loginSpinner.classList.add('hidden');
         });
     </script>
+
 </body>
 </html>
