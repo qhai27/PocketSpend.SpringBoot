@@ -201,7 +201,7 @@
         <!-- Charts Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
             <div class="bg-white rounded-xl p-4 shadow border">
-                <h3 class="text-lg font-semibold mb-2 text-gray-800">Expenses Breakdown (Type of Expense)</h3>
+                <h3 class="text-lg font-semibold mb-2 text-gray-800">Expenses Breakdown (Pie)</h3>
                 <canvas id="expensePieChart" height="200"></canvas>
             </div>
             <div class="bg-white rounded-xl p-4 shadow border">
@@ -239,32 +239,9 @@
                     </div>
 
                     <div>
-                        <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Type of Expense</label>
-                        <select id="title" required
-                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                            <option value="Grocery">Grocery</option>
-                            <option value="Healthcare">Healthcare</option>
-                            <option value="Insurance">Insurance</option>
-                            <option value="Entertainment">Entertainment</option>
-                            <option value="Gas">Gas</option>
-                            <option value="Groceries">Groceries</option>
-                            <option value="Housing">Housing</option>
-                            <option value="Transportation">Transportation</option>
-                            <option value="Clothes">Clothes</option>
-                            <option value="Pets">Pets</option>
-                            <option value="Rent">Rent</option>
-                            <option value="Travel expenses">Travel expenses</option>
-                            <option value="Car payment">Car payment</option>
-                            <option value="Debt">Debt</option>
-                            <option value="Food">Food</option>
-                            <option value="Gifts">Gifts</option>
-                            <option value="Investing">Investing</option>
-                            <option value="Memberships">Memberships</option>
-                            <option value="Student loans">Student loans</option>
-                            <option value="Subscriptions">Subscriptions</option>
-                            <option value="Emergency fund">Emergency fund</option>
-                            <option value="Other">Other</option>
-                        </select>
+                        <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                        <input type="text" id="title" required placeholder="e.g., Coffee at Starbucks"
+                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                     </div>
 
                     <div>
@@ -382,8 +359,8 @@
         <p class="text-gray-400 text-sm">Track smart, spend smarter.</p>
     </div>
 </footer>
-
 <script>
+
 
     // DEMO: Simulate a logged-in user (replace with real login logic in production)
     if (!localStorage.getItem('userId')) {
@@ -391,6 +368,7 @@
         localStorage.setItem('userId', mockUserId);
         console.log('User ID stored in localStorage:', mockUserId);
     }
+
 
     // Optional: Display user ID in the UI (for demo/debug)
     document.addEventListener('DOMContentLoaded', () => {
@@ -400,40 +378,51 @@
         }
     });
 
+
     // In-memory data storage
     let expenses = [];
     let budget = { totalBudget: 0, totalExpenses: 0, budgetLeft: 0 };
+
 
     // Navigation handling
     document.addEventListener('DOMContentLoaded', function() {
         const navButtons = document.querySelectorAll('.nav-btn');
         const sections = document.querySelectorAll('.section');
 
+
         navButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const targetSection = this.getAttribute('data-section');
 
+
                 // Remove active class from all nav buttons
                 navButtons.forEach(btn => btn.classList.remove('nav-active', 'bg-white', 'bg-opacity-20', 'text-blue-600'));
+
 
                 // Add active class to clicked button
                 this.classList.add('nav-active');
 
+
                 // Hide all sections
                 sections.forEach(section => section.classList.add('section-hidden'));
+
 
                 // Show target section
                 document.getElementById(targetSection).classList.remove('section-hidden');
             });
         });
 
+
         // Set default date to today
         document.getElementById('expenseDate').valueAsDate = new Date();
+
 
         // Load initial data
         fetchExpensesFromBackend(); // load from backend API
 
+
     });
+
 
     // Show toast notification
     function showToast(message, type = 'success') {
@@ -441,19 +430,23 @@
         const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
         const icon = type === 'success' ? '✅' : '❌';
 
+
         toast.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <span class="text-xl">${icon}</span>
-                    <span class="font-medium">${message}</span>
-                </div>
-            `;
+               <div class="flex items-center space-x-3">
+                   <span class="text-xl">${icon}</span>
+                   <span class="font-medium">${message}</span>
+               </div>
+           `;
+
 
         toast.className = `toast ${bgColor} text-white animate-bounce-in`;
+
 
         setTimeout(() => {
             toast.classList.add('hidden');
         }, 3000);
     }
+
 
     async function fetchExpensesFromBackend() {
         const userId = localStorage.getItem('userId');
@@ -463,12 +456,15 @@
             return;
         }
 
+
         try {
             const response = await fetch(`/api/expenses/${userId}`);
             if (!response.ok) throw new Error("Failed to fetch");
 
+
             const data = await response.json();
             console.log("Fetched data from backend:", data);
+
 
             expenses = data.map(e => ({
                 id: e.id,
@@ -479,6 +475,7 @@
                 description: e.description
             }));
 
+
             loadExpenses();
             loadBudget();
         } catch (error) {
@@ -487,21 +484,24 @@
         }
     }
 
+
     function loadExpenses() {
         const tableBody = document.getElementById('expense-table-body');
         const recentExpenses = document.getElementById('recent-expenses');
 
+
         tableBody.innerHTML = '';
+
 
         if (!expenses || expenses.length === 0) {
             tableBody.innerHTML = `
-            <tr>
-                <td colspan="4" class="text-center py-8 text-gray-500">
-                    <div class="text-4xl mb-2">📝</div>
-                    <p>No expenses yet. Start tracking your spending!</p>
-                </td>
-            </tr>
-        `;
+           <tr>
+               <td colspan="4" class="text-center py-8 text-gray-500">
+                   <div class="text-4xl mb-2">📝</div>
+                   <p>No expenses yet. Start tracking your spending!</p>
+               </td>
+           </tr>
+       `;
         } else {
             expenses.forEach((expense, index) => {
                 const amount = parseFloat(expense.amount); // 🛡️ Defensive
@@ -509,50 +509,71 @@
                 const description = expense.description || '';
                 const expenseDate = expense.expenseDate || 'Unknown';
 
+
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50 transition-colors duration-200';
                 row.innerHTML = `
-                <td class="py-4 px-2">
-                    <div class="font-medium text-gray-900">${title}</div>
-                    ${description ? `<div class="text-sm text-gray-500">${description}</div>` : ''}
-                </td>
-                <td class="py-4 px-2">
-                    <span class="font-semibold text-lg text-gray-900">$${isNaN(amount) ? '0.00' : amount.toFixed(2)}</span>
-                </td>
-                <td class="py-4 px-2 text-gray-600">${expenseDate}</td>
-                <td class="py-4 px-2">
-                    <button onclick="deleteExpense(${index})"
-                        class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200">
-                        🗑️ Delete
-                    </button>
-                </td>
-            `;
+               <td class="py-4 px-2">
+                   <div class="font-medium text-gray-900">${title}</div>
+                   ${description ? `<div class="text-sm text-gray-500">${description}</div>` : ''}
+               </td>
+               <td class="py-4 px-2">
+                   <span class="font-semibold text-lg text-gray-900">$${isNaN(amount) ? '0.00' : amount.toFixed(2)}</span>
+               </td>
+               <td class="py-4 px-2 text-gray-600">${expenseDate}</td>
+               <td class="py-4 px-2">
+                   <button onclick="deleteExpense(${index})"
+                       class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200">
+                       🗑️ Delete
+                   </button>
+               </td>
+           `;
                 tableBody.appendChild(row);
             });
         }
+
 
         updateDashboard();
         renderCharts();
     }
 
 
+
+
     // Load budget
-    function loadBudget() {
-        const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-        budget.totalExpenses = totalExpenses;
-        budget.budgetLeft = budget.totalBudget - totalExpenses;
+    async function loadBudget() {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return;
 
-        document.getElementById('current-budget').textContent = budget.totalBudget ? `$${budget.totalBudget.toFixed(2)}` : '$0.00';
-        document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
-        document.getElementById('budget-left').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
 
-        // Update progress bar
-        if (budget.totalBudget > 0) {
-            const percentage = Math.min((totalExpenses / budget.totalBudget) * 100, 100);
+        try {
+            const response = await fetch(`/api/budgets/${userId}`);
+            if (!response.ok) throw new Error("Failed to load budget");
+
+
+            const data = await response.json();
+            budget = {
+                totalBudget: parseFloat(data.totalBudget),
+                totalExpenses: parseFloat(data.totalExpenses),
+                budgetLeft: parseFloat(data.budgetLeft)
+            };
+
+
+            document.getElementById('current-budget').textContent = `$${budget.totalBudget.toFixed(2)}`;
+            document.getElementById('total-expenses').textContent = `$${budget.totalExpenses.toFixed(2)}`;
+            document.getElementById('budget-left').textContent = `$${budget.budgetLeft.toFixed(2)}`;
+
+
+            const percentage = budget.totalBudget > 0
+                ? Math.min((budget.totalExpenses / budget.totalBudget) * 100, 100)
+                : 0;
+
+
             document.getElementById('budget-progress').style.width = `${percentage}%`;
             document.getElementById('budget-percentage').textContent = `${percentage.toFixed(1)}%`;
 
-            // Change color based on usage
+
+            // Change bar color
             const progressBar = document.getElementById('budget-progress');
             if (percentage > 90) {
                 progressBar.className = 'bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500';
@@ -561,10 +582,20 @@
             } else {
                 progressBar.className = 'bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500';
             }
-        }
 
-        updateDashboard();
+
+            // Update dashboard cards
+            updateDashboard();
+
+
+        } catch (error) {
+            console.error("Error loading budget:", error);
+            showToast("Failed to load budget ❌", "error");
+        }
     }
+
+
+
 
     // Update dashboard
     function updateDashboard() {
@@ -572,29 +603,32 @@
         document.getElementById('dashboard-expenses').textContent = `$${budget.totalExpenses.toFixed(2)}`;
         document.getElementById('dashboard-remaining').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
 
+
         // Update recent expenses
         const recentExpensesContainer = document.getElementById('recent-expenses');
         const recentExpenses = expenses.slice(-5).reverse();
 
+
         if (recentExpenses.length === 0) {
             recentExpensesContainer.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <div class="text-4xl mb-2">💸</div>
-                        <p>No recent expenses to show</p>
-                    </div>
-                `;
+                   <div class="text-center py-8 text-gray-500">
+                       <div class="text-4xl mb-2">💸</div>
+                       <p>No recent expenses to show</p>
+                   </div>
+               `;
         } else {
             recentExpensesContainer.innerHTML = recentExpenses.map(expense => `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <div class="font-medium text-gray-900">${expense.title}</div>
-                            <div class="text-sm text-gray-500">${expense.expenseDate}</div>
-                        </div>
-                        <div class="font-semibold text-lg text-gray-900">$${expense.amount.toFixed(2)}</div>
-                    </div>
-                `).join('');
+                   <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                       <div>
+                           <div class="font-medium text-gray-900">${expense.title}</div>
+                           <div class="text-sm text-gray-500">${expense.expenseDate}</div>
+                       </div>
+                       <div class="font-semibold text-lg text-gray-900">$${expense.amount.toFixed(2)}</div>
+                   </div>
+               `).join('');
         }
     }
+
 
     // Handle expense form submission
     document.getElementById('expense-form').addEventListener('submit', function(event) {
@@ -602,6 +636,7 @@
         const submitBtn = document.getElementById('submit-btn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '⏳ Adding...';
+
 
         // Retrieve userId from localStorage (assumes it was stored during login)
         const userId = localStorage.getItem('userId');
@@ -612,12 +647,14 @@
             return;
         }
 
+
         // Create FormData object
         const formData = new FormData();
         formData.append('title', document.getElementById('title').value);
         formData.append('amount', parseFloat(document.getElementById('amount').value));
         formData.append('expenseDate', document.getElementById('expenseDate').value);
         formData.append('description', document.getElementById('description').value);
+
 
         // Send request to Spring Boot backend
         fetch(`/api/expenses/${userId}`, {
@@ -635,6 +672,7 @@
                 document.getElementById('expense-form').reset();
                 document.getElementById('expenseDate').valueAsDate = new Date(); // reset to today
 
+
                 // Add new expense to in-memory array
                 expenses.push({
                     title: formData.get('title'),
@@ -642,6 +680,7 @@
                     expenseDate: formData.get('expenseDate'),
                     description: formData.get('description')
                 });
+
 
                 loadExpenses(); // reload frontend
                 loadBudget();
@@ -656,12 +695,15 @@
             });
     });
 
+
     // Handle delete expense
     function deleteExpense(index) {
         const expense = expenses[index];
         const confirmDelete = confirm(`Are you sure you want to delete "${expense.title}"?`);
 
+
         if (!confirmDelete) return;
+
 
         fetch(`/api/expenses/${expense.id}`, {
             method: 'DELETE'
@@ -680,19 +722,55 @@
                 showToast('Error deleting expense ❌', 'error');
             });
 
+
     }
 
 
-    // Handle budget form submission
-    document.getElementById('budget-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const budgetAmount = parseFloat(document.getElementById('budget-amount').value);
 
-        budget.totalBudget = budgetAmount;
-        showToast('Budget set successfully! 🎯');
-        document.getElementById('budget-form').reset();
-        loadBudget();
+
+    // Handle budget form submission
+    document.getElementById('budget-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            showToast('User not logged in ❌', 'error');
+            return;
+        }
+
+
+        const budgetAmount = parseFloat(document.getElementById('budget-amount').value);
+        if (isNaN(budgetAmount) || budgetAmount <= 0) {
+            showToast('Please enter a valid budget amount ❌', 'error');
+            return;
+        }
+
+
+        try {
+            const response = await fetch(`/api/budgets/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ totalBudget: budgetAmount })
+            });
+
+
+            if (!response.ok) throw new Error('Failed to set budget');
+
+
+            const data = await response.json();
+            console.log("Budget set:", data);
+            showToast('Budget set successfully! 🎯');
+            document.getElementById('budget-form').reset();
+            loadBudget(); // optional if you want to reload
+        } catch (error) {
+            console.error("Error setting budget:", error);
+            showToast('Error setting budget ❌', 'error');
+        }
     });
+
 
     // Handle logout
     document.getElementById('logout-btn').addEventListener('click', function(event) {
@@ -704,45 +782,36 @@
         }, 1000);
     });
 
+
     let pieChartInstance = null;
     let barChartInstance = null;
+
 
     function renderCharts() {
         const pieCtx = document.getElementById('expensePieChart').getContext('2d');
         const barCtx = document.getElementById('expenseBarChart').getContext('2d');
 
-        // Group expenses by type (title) for doughnut chart
-        const typeTotals = {};
-        expenses.forEach(e => {
-            const type = e.title || 'Other';
-            typeTotals[type] = (typeTotals[type] || 0) + (parseFloat(e.amount) || 0);
-        });
-        const pieLabels = Object.keys(typeTotals);
-        const pieAmounts = Object.values(typeTotals);
 
-        // Bar chart: show by date or other logic if needed
-        const barLabels = expenses.map(e => e.expenseDate);
-        const barAmounts = expenses.map(e => e.amount);
+        const labels = expenses.map(e => e.title);
+        const amounts = expenses.map(e => e.amount);
+
 
         // Destroy existing charts if they exist to prevent duplicates
         if (pieChartInstance) pieChartInstance.destroy();
         if (barChartInstance) barChartInstance.destroy();
 
-        // Doughnut Chart by type
+
+        // PIE Chart
         pieChartInstance = new Chart(pieCtx, {
-            type: 'doughnut',
+            type: 'pie',
             data: {
-                labels: pieLabels,
+                labels: labels,
                 datasets: [{
-                    data: pieAmounts,
+                    data: amounts,
                     backgroundColor: [
                         '#3b82f6', '#8b5cf6', '#34d399',
                         '#f87171', '#fbbf24', '#10b981',
-                        '#f472b6', '#60a5fa', '#f59e0b',
-                        '#6366f1', '#eab308', '#ef4444',
-                        '#14b8a6', '#a21caf', '#f43f5e',
-                        '#22d3ee', '#fde68a', '#7c3aed',
-                        '#facc15', '#4ade80', '#f472b6'
+                        '#f472b6', '#60a5fa', '#f59e0b'
                     ],
                 }]
             },
@@ -756,14 +825,15 @@
             }
         });
 
-        // BAR Chart by date
+
+        // BAR Chart
         barChartInstance = new Chart(barCtx, {
             type: 'bar',
             data: {
-                labels: barLabels,
+                labels: labels,
                 datasets: [{
                     label: 'Amount Spent',
-                    data: barAmounts,
+                    data: amounts,
                     backgroundColor: '#3b82f6',
                     borderRadius: 6
                 }]
@@ -783,6 +853,7 @@
             }
         });
     }
+
 
 </script>
 </body>
