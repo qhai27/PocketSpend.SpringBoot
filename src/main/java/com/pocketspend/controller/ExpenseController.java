@@ -12,15 +12,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pocketspend.model.Expense;
+import com.pocketspend.model.User;
+import com.pocketspend.repository.UserRepository;
 import com.pocketspend.service.ExpenseService;
 
 @RestController
 @RequestMapping("/api/expenses")
-@CrossOrigin(origins = "*") // ✅ Tambah kalau frontend hosted pada port lain (seperti 5500 / 3000)
+@CrossOrigin(origins = "*") // Tambah kalau frontend hosted pada port lain (seperti 5500 / 3000)
 public class ExpenseController {
 
     @Autowired
     private ExpenseService expenseService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // ✅ Add Expense with Image
     @PostMapping(value = "/{userId}", consumes = { "multipart/form-data" })
@@ -32,8 +37,11 @@ public class ExpenseController {
             @RequestParam("description") String description,
             @RequestParam(value = "receiptImage", required = false) MultipartFile receiptImage) {
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
         LocalDate parsedDate = LocalDate.parse(expenseDate);
-        Expense expense = new Expense(userId, title, amount, parsedDate, description);
+        Expense expense = new Expense(user, title, amount, parsedDate, description);
 
         if (receiptImage != null && !receiptImage.isEmpty()) {
             try {

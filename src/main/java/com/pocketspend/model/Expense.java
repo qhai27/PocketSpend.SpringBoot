@@ -1,7 +1,7 @@
 package com.pocketspend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -12,8 +12,10 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
 
     @Column(nullable = false)
     private String title;
@@ -38,8 +40,8 @@ public class Expense {
         // Default constructor
     }
 
-    public Expense(Long userId, String title, double amount, LocalDate date, String description) {
-        this.userId = userId;
+    public Expense(User user, String title, double amount, LocalDate date, String description) {
+        this.user = user;
         this.title = title;
         this.amount = amount;
         this.date = date;
@@ -55,12 +57,16 @@ public class Expense {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Long getUserId() {
+        return user != null ? user.getId() : null;
     }
 
     public String getTitle() {

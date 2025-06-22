@@ -7,10 +7,13 @@
     <title>PocketSpend - Smart Expense Tracking</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="currency-converter.js"></script>
+    <script src="splitwise.js"></script>
 
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -118,10 +121,23 @@
         .nav-active {
             background: rgba(255, 255, 255, 0.2);
         }
+
+        .mobile-nav-active {
+            --tw-text-opacity: 1;
+            color: rgb(37 99 235 / var(--tw-text-opacity));
+            background-color: rgb(239 246 255 / 1);
+        }
+
+        .dark .mobile-nav-active {
+            --tw-text-opacity: 1;
+            color: rgb(96 165 250 / var(--tw-text-opacity));
+            background-color: rgb(55 65 81 / 1);
+        }
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+<body
+    class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:bg-gray-900 dark:text-gray-300">
     <!-- Modern Navigation -->
     <nav class="gradient-bg text-white shadow-xl relative overflow-hidden">
         <div class="absolute inset-0 bg-white opacity-10"></div>
@@ -157,8 +173,31 @@
                         data-section="budget">
                         🎯 Budget
                     </button>
+                    <button
+                        class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20"
+                        data-section="currency-converter">
+                        💱 Currency
+                    </button>
+                    <button
+                        class="nav-btn px-4 py-2 rounded-lg transition-all duration-200 hover:bg-white hover:bg-opacity-20"
+                        data-section="splitwise">
+                        👥 Splitwise
+                    </button>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" type="button"
+                        class="p-2 rounded-lg text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 5.05A1 1 0 016.465 3.636l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM5 11a1 1 0 100-2H4a1 1 0 100 2h1z"
+                                fill-rule="evenodd" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
                     <span id="username-display" class="hidden md:block text-sm opacity-90"></span>
                     <button id="logout-btn"
                         class="p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200">
@@ -171,23 +210,43 @@
 
 
     <!-- Mobile Navigation -->
-    <div class="md:hidden bg-white shadow-lg sticky top-0 z-40">
+    <div class="md:hidden bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-40">
         <div class="flex justify-around py-2">
-            <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="dashboard">
+            <button
+                class="nav-btn flex flex-col items-center py-2 px-3 text-sm rounded-lg text-gray-600 dark:text-gray-400"
+                data-section="dashboard">
                 <span class="text-lg mb-1">📊</span>
                 <span>Dashboard</span>
             </button>
-            <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="add-expense">
+            <button
+                class="nav-btn flex flex-col items-center py-2 px-3 text-sm rounded-lg text-gray-600 dark:text-gray-400"
+                data-section="add-expense">
                 <span class="text-lg mb-1">➕</span>
                 <span>Add</span>
             </button>
-            <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="view-expenses">
+            <button
+                class="nav-btn flex flex-col items-center py-2 px-3 text-sm rounded-lg text-gray-600 dark:text-gray-400"
+                data-section="view-expenses">
                 <span class="text-lg mb-1">📋</span>
                 <span>Expenses</span>
             </button>
-            <button class="nav-btn flex flex-col items-center py-2 px-3 text-sm" data-section="budget">
+            <button
+                class="nav-btn flex flex-col items-center py-2 px-3 text-sm rounded-lg text-gray-600 dark:text-gray-400"
+                data-section="budget">
                 <span class="text-lg mb-1">🎯</span>
                 <span>Budget</span>
+            </button>
+            <button
+                class="nav-btn flex flex-col items-center py-2 px-3 text-sm rounded-lg text-gray-600 dark:text-gray-400"
+                data-section="currency-converter">
+                <span class="text-lg mb-1">💱</span>
+                <span>Currency</span>
+            </button>
+            <button
+                class="nav-btn flex flex-col items-center py-2 px-3 text-sm rounded-lg text-gray-600 dark:text-gray-400"
+                data-section="splitwise">
+                <span class="text-lg mb-1">👥</span>
+                <span>Splitwise</span>
             </button>
         </div>
     </div>
@@ -197,58 +256,65 @@
         <!-- Dashboard Section -->
         <div id="dashboard" class="section animate-fade-in">
             <div class="mb-8">
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Financial Overview</h2>
-                <p class="text-gray-600">Track your spending with style and precision</p>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Financial Overview</h2>
+                <p class="text-gray-600 dark:text-gray-400">Track your spending with style and precision</p>
             </div>
 
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <!-- Budget Card -->
-                <div class="card-hover bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div
+                    class="card-hover bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                         <div
                             class="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
                             <span class="text-white text-xl">💰</span>
                         </div>
-                        <span class="text-sm text-gray-500 font-medium">This Month</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">This Month</span>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-budget">RM0.00</h3>
-                    <p class="text-sm text-gray-600">Total Budget</p>
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-1" id="dashboard-budget">RM0.00
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Total Budget</p>
                 </div>
 
 
                 <!-- Expenses Card -->
-                <div class="card-hover bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div
+                    class="card-hover bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                         <div
                             class="w-12 h-12 bg-gradient-to-r from-red-400 to-pink-500 rounded-xl flex items-center justify-center">
                             <span class="text-white text-xl">💸</span>
                         </div>
-                        <span class="text-sm text-gray-500 font-medium">Spent</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Spent</span>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-expenses">RM0.00</h3>
-                    <p class="text-sm text-gray-600">Total Expenses</p>
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-1" id="dashboard-expenses">RM0.00
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Total Expenses</p>
                 </div>
 
 
                 <!-- Remaining Card -->
-                <div class="card-hover bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div
+                    class="card-hover bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                         <div
                             class="w-12 h-12 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center">
                             <span class="text-white text-xl">🎯</span>
                         </div>
-                        <span class="text-sm text-gray-500 font-medium">Left</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Left</span>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-remaining">RM0.00</h3>
-                    <p class="text-sm text-gray-600">Budget Remaining</p>
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-1" id="dashboard-remaining">RM0.00
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Budget Remaining</p>
                 </div>
             </div>
 
 
             <!-- Recent Expenses -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Expenses</h3>
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Recent Expenses</h3>
                 <div id="recent-expenses" class="space-y-3">
                     <!-- Recent expenses will be populated here -->
                 </div>
@@ -257,12 +323,12 @@
 
             <!-- Charts Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                <div class="bg-white rounded-xl p-4 shadow border">
-                    <h3 class="text-lg font-semibold mb-2 text-gray-800">Expenses Breakdown</h3>
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow border dark:border-gray-700">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">Expenses Breakdown</h3>
                     <canvas id="expensePieChart" height="200"></canvas>
                 </div>
-                <div class="bg-white rounded-xl p-4 shadow border">
-                    <h3 class="text-lg font-semibold mb-2 text-gray-800">Expenses Over Time</h3>
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow border dark:border-gray-700">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">Expenses Over Time</h3>
                     <canvas id="expenseBarChart" height="200"></canvas>
                 </div>
             </div>
@@ -274,7 +340,8 @@
         <!-- Add Expense Section -->
         <div id="add-expense" class="section section-hidden">
             <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-8 text-white">
                         <h2 class="text-2xl font-bold mb-2">Add New Expense</h2>
                         <p class="opacity-90">Keep track of every penny spent</p>
@@ -285,26 +352,28 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="amount"
-                                    class="block text-sm font-semibold text-gray-700 mb-2">Amount</label>
+                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Amount</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-3 text-gray-500 text-lg">RM</span>
+                                    <span
+                                        class="absolute left-3 top-3 text-gray-500 dark:text-gray-400 text-lg">RM</span>
                                     <input type="number" id="amount" step="0.01" required
-                                        class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                        class="w-full pl-8 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white">
                                 </div>
                             </div>
                             <div>
                                 <label for="expenseDate"
-                                    class="block text-sm font-semibold text-gray-700 mb-2">Date</label>
+                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Date</label>
                                 <input type="date" id="expenseDate" required
-                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                    class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white">
                             </div>
                         </div>
 
 
                         <div>
-                            <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                            <label for="title"
+                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Category</label>
                             <select id="title" required
-                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white">
                                 <option value="">Select category</option>
                                 <option value="Grocery">Grocery</option>
                                 <option value="Healthcare">Healthcare</option>
@@ -333,17 +402,19 @@
 
 
                         <div>
-                            <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Description
+                            <label for="description"
+                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Description
                                 (Optional)</label>
                             <textarea id="description" rows="3" placeholder="Add any additional notes..."
-                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"></textarea>
+                                class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none bg-white dark:bg-gray-700 dark:text-white"></textarea>
                         </div>
 
                         <div>
-                            <label for="receiptImage" class="block text-sm font-semibold text-gray-700 mb-2">Receipt
+                            <label for="receiptImage"
+                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Receipt
                                 Image (Optional)</label>
                             <input type="file" id="receiptImage" accept="image/*"
-                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-300 dark:hover:file:bg-gray-600" />
                         </div>
 
 
@@ -359,7 +430,8 @@
 
         <!-- View Expenses Section -->
         <div id="view-expenses" class="section section-hidden">
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-6 text-white">
                     <h2 class="text-2xl font-bold">Your Expenses</h2>
                     <p class="opacity-90 mt-1">Manage and review all your transactions</p>
@@ -367,22 +439,31 @@
 
 
                 <div class="p-6">
-                    <button id="export-csv-btn"
-                        class="mb-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 rounded-xl font-semibold shadow hover:scale-105 transition-all duration-200">
-                        ⬇️ Export to CSV
-                    </button>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                        <div class="flex-1">
+                            <div class="relative">
+                                <input type="text" id="search-expense" placeholder="Search expenses by title..."
+                                    class="w-full px-4 py-2 pl-10 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <button id="export-csv-btn"
+                            class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 rounded-xl font-semibold shadow hover:scale-105 transition-all duration-200">
+                            ⬇️ Export to CSV
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <thead class="border-b border-gray-200">
+                            <thead class="border-b border-gray-200 dark:border-gray-700">
                                 <tr class="text-left">
-                                    <th class="py-4 px-2 font-semibold text-gray-700">Title</th>
-                                    <th class="py-4 px-2 font-semibold text-gray-700">Amount</th>
-                                    <th class="py-4 px-2 font-semibold text-gray-700">Date</th>
-                                    <th class="py-4 px-2 font-semibold text-gray-700">Receipt</th>
-                                    <th class="py-4 px-2 font-semibold text-gray-700">Actions</th>
+                                    <th class="py-4 px-2 font-semibold text-gray-700 dark:text-gray-300">Title</th>
+                                    <th class="py-4 px-2 font-semibold text-gray-700 dark:text-gray-300">Amount</th>
+                                    <th class="py-4 px-2 font-semibold text-gray-700 dark:text-gray-300">Date</th>
+                                    <th class="py-4 px-2 font-semibold text-gray-700 dark:text-gray-300">Receipt</th>
+                                    <th class="py-4 px-2 font-semibold text-gray-700 dark:text-gray-300">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="expense-table-body" class="divide-y divide-gray-100">
+                            <tbody id="expense-table-body" class="divide-y divide-gray-100 dark:divide-gray-700">
                                 <!-- Expenses will be populated here -->
                             </tbody>
                         </table>
@@ -395,7 +476,8 @@
         <!-- Budget Section -->
         <div id="budget" class="section section-hidden">
             <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                     <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-8 text-white">
                         <h2 class="text-2xl font-bold mb-2">Budget Management</h2>
                         <p class="opacity-90">Set your financial goals and track progress</p>
@@ -405,17 +487,20 @@
                     <div class="p-6">
                         <!-- Budget Stats -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <div class="text-2xl font-bold text-gray-800" id="current-budget">$0.00</div>
-                                <div class="text-sm text-gray-600">Current Budget</div>
+                            <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                                <div class="text-2xl font-bold text-gray-800 dark:text-gray-100" id="current-budget">
+                                    RM0.00</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">Current Budget</div>
                             </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <div class="text-2xl font-bold text-gray-800" id="total-expenses">$0.00</div>
-                                <div class="text-sm text-gray-600">Total Spent</div>
+                            <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                                <div class="text-2xl font-bold text-gray-800 dark:text-gray-100" id="total-expenses">
+                                    RM0.00</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">Total Spent</div>
                             </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <div class="text-2xl font-bold text-gray-800" id="budget-left">$0.00</div>
-                                <div class="text-sm text-gray-600">Remaining</div>
+                            <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                                <div class="text-2xl font-bold text-gray-800 dark:text-gray-100" id="budget-left">RM0.00
+                                </div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">Remaining</div>
                             </div>
                         </div>
 
@@ -423,10 +508,10 @@
                         <!-- Progress Bar -->
                         <div class="mb-8">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-semibold text-gray-700">Budget Usage</span>
-                                <span class="text-sm text-gray-600" id="budget-percentage">0%</span>
+                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Budget Usage</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400" id="budget-percentage">0%</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                                 <div id="budget-progress"
                                     class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500"
                                     style="width: 0%"></div>
@@ -437,12 +522,14 @@
                         <!-- Set Budget Form -->
                         <form id="budget-form" class="space-y-6">
                             <div>
-                                <label for="budget-amount" class="block text-sm font-semibold text-gray-700 mb-2">Set
+                                <label for="budget-amount"
+                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Set
                                     New Budget</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-3 text-gray-500 text-lg">RM</span>
+                                    <span
+                                        class="absolute left-3 top-3 text-gray-500 dark:text-gray-400 text-lg">RM</span>
                                     <input type="number" id="budget-amount" step="0.01" required
-                                        class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                        class="w-full pl-8 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white"
                                         placeholder="Enter your budget amount">
                                 </div>
                             </div>
@@ -457,11 +544,179 @@
                 </div>
             </div>
         </div>
+
+
+        <!-- Currency Converter Section -->
+        <div id="currency-converter" class="section section-hidden">
+            <div class="max-w-4xl mx-auto">
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="bg-gradient-to-r from-yellow-500 to-orange-600 px-6 py-8 text-white">
+                        <h2 class="text-2xl font-bold mb-2">Currency Converter</h2>
+                        <p class="opacity-90">Convert between different currencies with real-time exchange rates</p>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <!-- From Currency -->
+                            <div class="space-y-4">
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">From</label>
+                                <div class="relative">
+                                    <input type="number" id="from-amount" step="0.01" placeholder="0.00"
+                                        class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <select id="from-currency"
+                                    class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white">
+                                    <option value="MYR">MYR - Malaysian Ringgit</option>
+                                    <option value="USD">USD - US Dollar</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound</option>
+                                    <option value="JPY">JPY - Japanese Yen</option>
+                                    <option value="SGD">SGD - Singapore Dollar</option>
+                                    <option value="AUD">AUD - Australian Dollar</option>
+                                    <option value="CAD">CAD - Canadian Dollar</option>
+                                    <option value="CHF">CHF - Swiss Franc</option>
+                                    <option value="CNY">CNY - Chinese Yuan</option>
+                                    <option value="INR">INR - Indian Rupee</option>
+                                    <option value="KRW">KRW - South Korean Won</option>
+                                    <option value="THB">THB - Thai Baht</option>
+                                    <option value="IDR">IDR - Indonesian Rupiah</option>
+                                    <option value="PHP">PHP - Philippine Peso</option>
+                                </select>
+                            </div>
+
+                            <!-- To Currency -->
+                            <div class="space-y-4">
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">To</label>
+                                <div class="relative">
+                                    <input type="number" id="to-amount" step="0.01" placeholder="0.00" readonly
+                                        class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-600 dark:text-white">
+                                </div>
+                                <select id="to-currency"
+                                    class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white">
+                                    <option value="USD">USD - US Dollar</option>
+                                    <option value="MYR" selected>MYR - Malaysian Ringgit</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound</option>
+                                    <option value="JPY">JPY - Japanese Yen</option>
+                                    <option value="SGD">SGD - Singapore Dollar</option>
+                                    <option value="AUD">AUD - Australian Dollar</option>
+                                    <option value="CAD">CAD - Canadian Dollar</option>
+                                    <option value="CHF">CHF - Swiss Franc</option>
+                                    <option value="CNY">CNY - Chinese Yuan</option>
+                                    <option value="INR">INR - Indian Rupee</option>
+                                    <option value="KRW">KRW - South Korean Won</option>
+                                    <option value="THB">THB - Thai Baht</option>
+                                    <option value="IDR">IDR - Indonesian Rupiah</option>
+                                    <option value="PHP">PHP - Philippine Peso</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Convert Button -->
+                        <div class="text-center mb-8">
+                            <button id="convert-btn"
+                                class="bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-4 px-8 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:transform-none">
+                                🔄 Convert Currency
+                            </button>
+                        </div>
+
+                        <!-- Exchange Rate Info -->
+                        <div id="exchange-rate-info"
+                            class="hidden bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 text-center">
+                            <div class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+                                <span id="exchange-rate">1.00</span>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                <span id="from-currency-label">MYR</span> = <span id="to-currency-label">USD</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                                Last updated: <span id="last-updated">Just now</span>
+                            </div>
+                        </div>
+
+                        <!-- Popular Conversions -->
+                        <div class="mt-8">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Popular Conversions
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <button
+                                    class="popular-conversion p-4 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200"
+                                    data-from="MYR" data-to="USD">
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">MYR to USD</div>
+                                    <div class="text-lg font-semibold text-gray-800 dark:text-gray-100">1 MYR = <span
+                                            class="myr-usd-rate">0.21</span> USD</div>
+                                </button>
+                                <button
+                                    class="popular-conversion p-4 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200"
+                                    data-from="USD" data-to="MYR">
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">USD to MYR</div>
+                                    <div class="text-lg font-semibold text-gray-800 dark:text-gray-100">1 USD = <span
+                                            class="usd-myr-rate">4.75</span> MYR</div>
+                                </button>
+                                <button
+                                    class="popular-conversion p-4 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200"
+                                    data-from="MYR" data-to="SGD">
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">MYR to SGD</div>
+                                    <div class="text-lg font-semibold text-gray-800 dark:text-gray-100">1 MYR = <span
+                                            class="myr-sgd-rate">0.29</span> SGD</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Splitwise Tab -->
+        <div id="splitwise" class="section section-hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">👥 Splitwise</h2>
+                <p class="text-gray-600 dark:text-gray-400">Split expenses with friends and family easily</p>
+            </div>
+
+            <!-- Status Message -->
+            <div id="splitwise-status" class="mb-4"></div>
+
+            <!-- Navigation Tabs -->
+            <div id="splitwise-nav" class="flex space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1 mb-6">
+                <button
+                    class="nav-btn flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-blue-600 text-white"
+                    data-view="dashboard">
+                    🏠 Dashboard
+                </button>
+                <button
+                    class="nav-btn flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+                    data-view="groups">
+                    📁 Groups
+                </button>
+                <button
+                    class="nav-btn flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+                    data-view="members">
+                    👤 Members
+                </button>
+                <button
+                    class="nav-btn flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+                    data-view="expenses">
+                    💰 Expenses
+                </button>
+                <button
+                    class="nav-btn flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+                    data-view="balances">
+                    💳 Balances
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div id="splitwise-content">
+                <!-- Content will be dynamically loaded here -->
+            </div>
+        </div>
     </div>
 
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast hidden px-6 py-4 rounded-xl shadow-lg max-w-sm">
+    <div id="toast" class="toast hidden px-6 py-4 rounded-xl shadow-lg max-w-sm text-white dark:text-gray-200">
         <!-- Toast content will be set dynamically -->
     </div>
 
@@ -484,22 +739,38 @@
             console.log('User ID stored in localStorage:', mockUserId);
         }
 
-        // Optional: Display user ID in the UI (for demo/debug)
+        // Optional: Display username in the UI (for demo/debug)
         document.addEventListener('DOMContentLoaded', () => {
             const userId = localStorage.getItem('userId');
+            const username = localStorage.getItem('username');
             if (userId && document.getElementById('username-display')) {
-                document.getElementById('username-display').textContent = `Hello 👋 User #${userId}`;
+                document.getElementById('username-display').textContent = `Hello ${username ? username : 'User'} 👋 `;
             }
         });
 
         // In-memory data storage
         let expenses = [];
         let budget = { totalBudget: 0, totalExpenses: 0, budgetLeft: 0 };
+        let filteredExpenses = []; // For search functionality
 
         // Navigation handling
         document.addEventListener('DOMContentLoaded', function () {
             const navButtons = document.querySelectorAll('.nav-btn');
             const sections = document.querySelectorAll('.section');
+
+            const setActiveButton = (activeButton) => {
+                navButtons.forEach(button => {
+                    button.classList.remove('nav-active', 'mobile-nav-active');
+                });
+
+                if (activeButton.closest('.gradient-bg')) {
+                    // Desktop nav uses the subtle background active class
+                    activeButton.classList.add('nav-active');
+                } else {
+                    // Mobile nav has a more explicit active state
+                    activeButton.classList.add('mobile-nav-active');
+                }
+            };
 
             navButtons.forEach(button => {
                 button.addEventListener('click', function () {
@@ -525,12 +796,32 @@
             // Load initial data
             loadInitialData(); // Fetches budget and expenses
 
+            // Add search functionality
+            const searchInput = document.getElementById('search-expense');
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    searchExpenses(this.value);
+                });
+            }
         });
+
+        // Search expenses function
+        function searchExpenses(searchTerm) {
+            if (!searchTerm.trim()) {
+                filteredExpenses = [...expenses];
+            } else {
+                filteredExpenses = expenses.filter(expense =>
+                    expense.title.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+            loadExpenses();
+        }
 
         // Show toast notification
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const successClasses = "bg-green-500 dark:bg-green-600";
+            const errorClasses = "bg-red-500 dark:bg-red-600";
             const icon = type === 'success' ? '✅' : '❌';
 
             toast.innerHTML = `
@@ -540,7 +831,7 @@
                 </div>
             `;
 
-            toast.className = `toast ${bgColor} text-white animate-bounce-in`;
+            toast.className = `toast ${type === 'success' ? successClasses : errorClasses} text-white animate-bounce-in`;
 
             setTimeout(() => {
                 toast.classList.add('hidden');
@@ -587,6 +878,9 @@
                 loadExpenses();
                 loadBudget();
 
+                // Initialize filtered expenses for search functionality
+                filteredExpenses = [...expenses];
+
             } catch (error) {
                 console.error("Error loading initial data:", error);
                 showToast("Failed to load initial data ❌", "error");
@@ -599,38 +893,41 @@
 
             tableBody.innerHTML = '';
 
-            if (!expenses || expenses.length === 0) {
+            // Use filtered expenses if available, otherwise use all expenses
+            const expensesToDisplay = filteredExpenses.length > 0 ? filteredExpenses : expenses;
+
+            if (!expensesToDisplay || expensesToDisplay.length === 0) {
                 tableBody.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center py-8 text-gray-500">
                     <div class="text-4xl mb-2">📝</div>
-                    <p>No expenses yet. Start tracking your spending!</p>
+                    <p>${filteredExpenses.length > 0 ? 'No expenses found matching your search.' : 'No expenses yet. Start tracking your spending!'}</p>
                 </td>
             </tr>
         `;
             } else {
-                expenses.forEach((expense, index) => {
+                expensesToDisplay.forEach((expense, index) => {
                     const amount = parseFloat(expense.amount); // 🛡️ Defensive
                     const title = expense.title || 'Untitled';
                     const description = expense.description || '';
                     const expenseDate = expense.expenseDate || 'Unknown';
 
                     const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50 transition-colors duration-200';
+                    row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200';
                     row.innerHTML = `
                 <td class="py-4 px-2">
-                    <div class="font-medium text-gray-900">${title}</div>
-                    ${description ? `<div class="text-sm text-gray-500">${description}</div>` : ''}
+                    <div class="font-medium text-gray-900 dark:text-gray-100">${title}</div>
+                    ${description ? `<div class="text-sm text-gray-500 dark:text-gray-400">${description}</div>` : ''}
                 </td>
                 <td class="py-4 px-2">
-                    <span class="font-semibold text-lg text-gray-900">RM${isNaN(amount) ? '0.00' : amount.toFixed(2)}</span>
+                    <span class="font-semibold text-lg text-gray-900 dark:text-gray-100">RM${isNaN(amount) ? '0.00' : amount.toFixed(2)}</span>
                 </td>
-                <td class="py-4 px-2 text-gray-600">${expenseDate}</td>
+                <td class="py-4 px-2 text-gray-600 dark:text-gray-400">${expenseDate}</td>
                 <td class="py-4 px-2">
-                    ${expense.receiptImageType ? `<a href="/api/expenses/${expense.id}/image" target="_blank" class="text-blue-500 hover:underline">View</a>` : 'None'}
+                    ${expense.receiptImageType ? `<a href="/api/expenses/${expense.id}/image" target="_blank" class="text-blue-500 dark:text-blue-400 hover:underline">View</a>` : 'None'}
                 </td>
                 <td class="py-4 px-2">
-                    <button onclick="deleteExpense(${index})"
+                    <button onclick="deleteExpense(${expense.id})"
                         class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200">
                         🗑️ Delete
                     </button>
@@ -644,18 +941,15 @@
             renderCharts();
         }
 
-
-
-
         // Load budget
         function loadBudget() {
             const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
             budget.totalExpenses = totalExpenses;
             budget.budgetLeft = budget.totalBudget - totalExpenses;
 
-            document.getElementById('current-budget').textContent = budget.totalBudget ? `$${budget.totalBudget.toFixed(2)}` : '$0.00';
-            document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
-            document.getElementById('budget-left').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
+            document.getElementById('current-budget').textContent = budget.totalBudget ? `RM${budget.totalBudget.toFixed(2)}` : 'RM0.00';
+            document.getElementById('total-expenses').textContent = `RM${totalExpenses.toFixed(2)}`;
+            document.getElementById('budget-left').textContent = budget.totalBudget ? `RM${budget.budgetLeft.toFixed(2)}` : 'RM0.00';
 
             // Update progress bar
             if (budget.totalBudget > 0) {
@@ -679,9 +973,9 @@
 
         // Update dashboard
         function updateDashboard() {
-            document.getElementById('dashboard-budget').textContent = budget.totalBudget ? `$${budget.totalBudget.toFixed(2)}` : '$0.00';
-            document.getElementById('dashboard-expenses').textContent = `$${budget.totalExpenses.toFixed(2)}`;
-            document.getElementById('dashboard-remaining').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
+            document.getElementById('dashboard-budget').textContent = budget.totalBudget ? `RM${budget.totalBudget.toFixed(2)}` : 'RM0.00';
+            document.getElementById('dashboard-expenses').textContent = `RM${budget.totalExpenses.toFixed(2)}`;
+            document.getElementById('dashboard-remaining').textContent = budget.totalBudget ? `RM${budget.budgetLeft.toFixed(2)}` : 'RM0.00';
 
             // Update recent expenses
             const recentExpensesContainer = document.getElementById('recent-expenses');
@@ -696,12 +990,12 @@
                 `;
             } else {
                 recentExpensesContainer.innerHTML = recentExpenses.map(expense => `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <div>
-                            <div class="font-medium text-gray-900">${expense.title}</div>
-                            <div class="text-sm text-gray-500">${expense.expenseDate}</div>
+                            <div class="font-medium text-gray-900 dark:text-gray-100">${expense.title}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">${expense.expenseDate}</div>
                         </div>
-                        <div class="font-semibold text-lg text-gray-900">RM${expense.amount.toFixed(2)}</div>
+                        <div class="font-semibold text-lg text-gray-900 dark:text-gray-100">RM${expense.amount.toFixed(2)}</div>
                     </div>
                 `).join('');
             }
@@ -914,6 +1208,9 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
+                            labels: {
+                                color: document.documentElement.classList.contains('dark') ? '#fff' : '#6b7280'
+                            }
                         }
                     }
                 }
@@ -942,23 +1239,32 @@
                     plugins: {
                         legend: {
                             display: true,
-                            position: 'top'
+                            position: 'top',
+                            labels: {
+                                color: document.documentElement.classList.contains('dark') ? '#fff' : '#6b7280'
+                            }
                         }
                     },
                     scales: {
                         x: {
                             title: {
                                 display: true,
-                                text: 'Month'
+                                text: 'Month',
+                                color: document.documentElement.classList.contains('dark') ? '#fff' : '#6b7280'
+                            },
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#fff' : '#6b7280'
                             }
                         },
                         y: {
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Amount spent (RM)'
+                                text: 'Amount spent (RM)',
+                                color: document.documentElement.classList.contains('dark') ? '#fff' : '#6b7280'
                             },
                             ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#fff' : '#6b7280',
                                 callback: function (value) {
                                     return 'RM' + value;
                                 }
@@ -997,6 +1303,52 @@
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
             showToast('CSV exported! ✅');
+        });
+
+        // Theme toggle logic
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        // Check for saved theme in localStorage and set initial state
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+            themeToggleDarkIcon.classList.add('hidden');
+            document.documentElement.classList.add('dark');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+            themeToggleLightIcon.classList.add('hidden');
+            document.documentElement.classList.remove('dark');
+        }
+
+        themeToggleBtn.addEventListener('click', function () {
+            // toggle icons inside button
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            // if set via local storage previously
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+
+                // if NOT set via local storage previously
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+
+            // We need to re-render charts on theme change for label colors to update
+            renderCharts();
         });
 
     </script>

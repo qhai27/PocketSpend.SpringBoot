@@ -1,7 +1,9 @@
 package com.pocketspend.service;
 
 import com.pocketspend.model.Expense;
+import com.pocketspend.model.User;
 import com.pocketspend.repository.ExpenseRepository;
+import com.pocketspend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,9 @@ public class ExpenseService {
     private ExpenseRepository expenseRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private BudgetService budgetService; // Injected BudgetService
 
     /**
@@ -23,7 +28,9 @@ public class ExpenseService {
      */
     @Transactional
     public Expense addExpense(Long userId, Expense expense) {
-        expense.setUserId(userId); // Ensure expense is associated with the correct user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        expense.setUser(user); // Set the User relationship
         Expense savedExpense = expenseRepository.save(expense);
         budgetService.updateBudgetExpenses(userId); // Update budget
         return savedExpense;

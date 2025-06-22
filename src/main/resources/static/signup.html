@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,28 +9,28 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
+
         .glass-morphism {
             background: rgba(255, 255, 255, 0.25);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.18);
         }
-        
+
         .input-group {
             position: relative;
         }
-        
-        .input-group input:focus + label,
-        .input-group input:not(:placeholder-shown) + label {
+
+        .input-group input:focus+label,
+        .input-group input:not(:placeholder-shown)+label {
             transform: translateY(-24px) scale(0.85);
             color: #667eea;
         }
-        
+
         .floating-label {
             position: absolute;
             left: 12px;
@@ -40,17 +41,17 @@
             background: white;
             padding: 0 4px;
         }
-        
+
         .btn-gradient {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             transition: all 0.3s ease;
         }
-        
+
         .btn-gradient:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
         }
-        
+
         .toast {
             position: fixed;
             top: 20px;
@@ -59,18 +60,18 @@
             transform: translateX(100%);
             transition: transform 0.3s ease;
         }
-        
+
         .toast.show {
             transform: translateX(0);
         }
-        
+
         .logo-container {
             background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
         .password-strength {
             height: 4px;
             border-radius: 2px;
@@ -78,50 +79,65 @@
             overflow: hidden;
             margin-top: 8px;
         }
-        
+
         .password-strength-bar {
             height: 100%;
             width: 0%;
             transition: all 0.3s ease;
             border-radius: 2px;
         }
-        
-        .strength-weak { background: #ef4444; width: 25%; }
-        .strength-fair { background: #f59e0b; width: 50%; }
-        .strength-good { background: #10b981; width: 75%; }
-        .strength-strong { background: #059669; width: 100%; }
-        
+
+        .strength-weak {
+            background: #ef4444;
+            width: 25%;
+        }
+
+        .strength-fair {
+            background: #f59e0b;
+            width: 50%;
+        }
+
+        .strength-good {
+            background: #10b981;
+            width: 75%;
+        }
+
+        .strength-strong {
+            background: #059669;
+            width: 100%;
+        }
+
         .benefits-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
             margin-top: 1.5rem;
         }
-        
+
         .benefit-item {
             display: flex;
             align-items: center;
             color: rgba(255, 255, 255, 0.8);
             font-size: 0.875rem;
         }
-        
+
         .social-login {
             border: 1px solid rgba(255, 255, 255, 0.3);
             background: rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
-        
+
         .social-login:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-1px);
         }
-        
+
         .step-indicator {
             display: flex;
             justify-content: center;
             margin-bottom: 2rem;
         }
-        
+
         .step {
             width: 12px;
             height: 12px;
@@ -130,19 +146,26 @@
             margin: 0 4px;
             transition: all 0.3s ease;
         }
-        
+
         .step.active {
             background: white;
             transform: scale(1.2);
         }
     </style>
 </head>
+
 <body class="min-h-screen flex items-center justify-center p-4">
     <!-- Background Animation -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div class="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div
+            class="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob">
+        </div>
+        <div
+            class="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000">
+        </div>
+        <div
+            class="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000">
+        </div>
     </div>
 
     <div class="w-full max-w-md relative z-10">
@@ -165,18 +188,12 @@
         <!-- Main Signup Card -->
         <div class="glass-morphism rounded-2xl p-8 shadow-2xl">
             <form id="signup-form" class="space-y-6">
-            
+
 
                 <!-- Username Input -->
                 <div class="input-group">
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username" 
-                        placeholder=" "
-                        required
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
-                    >
+                    <input type="text" id="username" name="username" placeholder=" " required
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90">
                     <label for="username" class="floating-label">
                         <i class="fas fa-at mr-2"></i>Username
                     </label>
@@ -184,57 +201,42 @@
 
                 <!-- Password Input -->
                 <div class="input-group">
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder=" "
-                        required
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90"
-                    >
+                    <input type="password" id="password" name="password" placeholder=" " required
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white/90">
                     <label for="password" class="floating-label">
                         <i class="fas fa-lock mr-2"></i>Password
                     </label>
                     <div class="password-strength">
                         <div id="password-strength-bar" class="password-strength-bar"></div>
                     </div>
-                    <p id="password-hint" class="text-xs text-white/60 mt-2">Use 8+ characters with letters, numbers & symbols</p>
+                    <p id="password-hint" class="text-xs text-white/60 mt-2">Use 8+ characters with letters, numbers &
+                        symbols</p>
                 </div>
 
                 <!-- Terms and Privacy -->
                 <div class="flex items-start space-x-3">
-                    <input 
-                        type="checkbox" 
-                        id="terms" 
-                        required
-                        class="mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                    >
+                    <input type="checkbox" id="terms" required
+                        class="mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                     <label for="terms" class="text-sm text-white/80 leading-5">
-                        I agree to the 
-                        <a href="#" class="text-white underline hover:no-underline">Terms of Service</a> 
-                        and 
+                        I agree to the
+                        <a href="#" class="text-white underline hover:no-underline">Terms of Service</a>
+                        and
                         <a href="#" class="text-white underline hover:no-underline">Privacy Policy</a>
                     </label>
                 </div>
 
                 <!-- Marketing Consent -->
                 <div class="flex items-start space-x-3">
-                    <input 
-                        type="checkbox" 
-                        id="marketing" 
-                        class="mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                    >
+                    <input type="checkbox" id="marketing"
+                        class="mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                     <label for="marketing" class="text-sm text-white/80 leading-5">
                         Send me tips, product updates, and special offers
                     </label>
                 </div>
 
                 <!-- Create Account Button -->
-                <button 
-                    type="submit" 
-                    id="signup-btn"
-                    class="w-full btn-gradient text-white py-3 px-6 rounded-xl font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
+                <button type="submit" id="signup-btn"
+                    class="w-full btn-gradient text-white py-3 px-6 rounded-xl font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
                     <span id="signup-text">Create Account</span>
                     <i id="signup-spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
                 </button>
@@ -242,7 +244,7 @@
 
             <!-- Login Link -->
             <p class="mt-6 text-center text-white/80">
-                Already have an account? 
+                Already have an account?
                 <a href="/login.html" class="text-white font-semibold hover:underline transition-all ml-1">
                     Sign in
                 </a>
@@ -280,20 +282,31 @@
 
     <style>
         @keyframes blob {
-            0% { transform: translate(0px, 0px) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-            100% { transform: translate(0px, 0px) scale(1); }
+            0% {
+                transform: translate(0px, 0px) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+
+            100% {
+                transform: translate(0px, 0px) scale(1);
+            }
         }
-        
+
         .animate-blob {
             animation: blob 7s infinite;
         }
-        
+
         .animation-delay-2000 {
             animation-delay: 2s;
         }
-        
+
         .animation-delay-4000 {
             animation-delay: 4s;
         }
@@ -303,12 +316,12 @@
         function showToast(message, isError = true) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
-            
+
             toastMessage.textContent = message;
             toast.classList.remove('bg-green-500', 'bg-red-500');
             toast.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
             toast.classList.add('show');
-            
+
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 4000);
@@ -317,18 +330,18 @@
         function updatePasswordStrength(password) {
             const strengthBar = document.getElementById('password-strength-bar');
             const hint = document.getElementById('password-hint');
-            
+
             let strength = 0;
             let feedback = '';
-            
+
             if (password.length >= 8) strength++;
             if (/[a-z]/.test(password)) strength++;
             if (/[A-Z]/.test(password)) strength++;
             if (/[0-9]/.test(password)) strength++;
             if (/[^A-Za-z0-9]/.test(password)) strength++;
-            
+
             strengthBar.className = 'password-strength-bar';
-            
+
             switch (strength) {
                 case 0:
                 case 1:
@@ -349,21 +362,21 @@
                     feedback = 'Strong password ✓';
                     break;
             }
-            
+
             hint.textContent = feedback;
         }
 
-        document.getElementById('password').addEventListener('input', function(e) {
+        document.getElementById('password').addEventListener('input', function (e) {
             updatePasswordStrength(e.target.value);
         });
 
-        document.getElementById('signup-form').addEventListener('submit', async function(event) {
+        document.getElementById('signup-form').addEventListener('submit', async function (event) {
             event.preventDefault();
-            
+
             const signupBtn = document.getElementById('signup-btn');
             const signupText = document.getElementById('signup-text');
             const signupSpinner = document.getElementById('signup-spinner');
-            
+
             // Show loading state
             signupBtn.disabled = true;
             signupText.textContent = 'Creating account...';
@@ -422,4 +435,5 @@
         });
     </script>
 </body>
+
 </html>

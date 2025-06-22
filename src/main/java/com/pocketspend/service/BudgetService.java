@@ -1,11 +1,12 @@
 package com.pocketspend.service;
 
+import com.pocketspend.model.Budget;
+import com.pocketspend.model.User;
+import com.pocketspend.repository.BudgetRepository;
 import com.pocketspend.repository.ExpenseRepository;
+import com.pocketspend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.pocketspend.model.Budget;
-import com.pocketspend.repository.BudgetRepository;
 
 @Service
 public class BudgetService {
@@ -16,12 +17,18 @@ public class BudgetService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     public Budget setBudget(Long userId, double totalBudget) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
         double totalExpenses = expenseRepository.sumExpensesByUserId(userId);
         Budget budget = budgetRepository.findByUserId(userId);
 
         if (budget == null) {
-            budget = new Budget(userId, totalBudget);
+            budget = new Budget(user, totalBudget);
         } else {
             budget.setTotalBudget(totalBudget);
         }
