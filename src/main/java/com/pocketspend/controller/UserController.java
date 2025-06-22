@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pocketspend.model.User;
 import com.pocketspend.service.UserService;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
@@ -27,10 +29,16 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
             User authenticatedUser = userService.login(user.getUsername(), user.getPassword());
-            return ResponseEntity.ok(authenticatedUser);
+
+            // Return only necessary info
+            return ResponseEntity.ok(Map.of(
+                    "userId", authenticatedUser.getId(),
+                    "username", authenticatedUser.getUsername()
+            ));
         } catch (RuntimeException e) {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
     }
+
 
 }

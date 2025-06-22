@@ -250,20 +250,6 @@
                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"></textarea>
                     </div>
 
-                    <div>
-                        <label for="receiptImage" class="block text-sm font-semibold text-gray-700 mb-2">Receipt Image</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors duration-200">
-                            <input type="file" id="receiptImage" accept="image/*" class="hidden">
-                            <label for="receiptImage" class="cursor-pointer">
-                                <div class="text-gray-400 mb-2">
-                                    <span class="text-4xl">📷</span>
-                                </div>
-                                <p class="text-sm text-gray-600">Click to upload receipt image</p>
-                                <p class="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
-                            </label>
-                        </div>
-                    </div>
-
                     <button type="submit" id="submit-btn"
                             class="w-full btn-gradient text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:transform-none">
                         💾 Add Expense
@@ -376,7 +362,20 @@
 
 <script>
 
-    document.getElementById('username-display').textContent = `Hye 👋`;
+    // DEMO: Simulate a logged-in user (replace with real login logic in production)
+    if (!localStorage.getItem('userId')) {
+        const mockUserId = 1; // or any unique demo/test ID
+        localStorage.setItem('userId', mockUserId);
+        console.log('User ID stored in localStorage:', mockUserId);
+    }
+
+    // Optional: Display user ID in the UI (for demo/debug)
+    document.addEventListener('DOMContentLoaded', () => {
+        const userId = localStorage.getItem('userId');
+        if (userId && document.getElementById('username-display')) {
+            document.getElementById('username-display').textContent = `Hello 👋 User #${userId}`;
+        }
+    });
 
     // In-memory data storage
     let expenses = [];
@@ -409,8 +408,8 @@
         document.getElementById('expenseDate').valueAsDate = new Date();
 
         // Load initial data
-        loadExpenses();
-        loadBudget();
+        fetchExpensesFromBackend(); // load from backend API
+
     });
 
     // Show toast notification
@@ -433,50 +432,86 @@
         }, 3000);
     }
 
-    // Load expenses
+    async function fetchExpensesFromBackend() {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            console.error("User ID not found. Redirecting...");
+            window.location.href = "login.html";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/expenses/${userId}`);
+            if (!response.ok) throw new Error("Failed to fetch");
+
+            const data = await response.json();
+            console.log("Fetched data from backend:", data);
+
+            expenses = data.map(e => ({
+                id: e.id,
+                userId: e.userId,
+                title: e.title,
+                amount: parseFloat(e.amount), // ✅ very important!
+                expenseDate: e.date,
+                description: e.description
+            }));
+
+            loadExpenses();
+            loadBudget();
+        } catch (error) {
+            console.error("Error fetching expenses:", error);
+            showToast("Failed to load expenses ❌", "error");
+        }
+    }
+
     function loadExpenses() {
         const tableBody = document.getElementById('expense-table-body');
-        const recentExpenses = document.getElementById('recent-expressions');
+        const recentExpenses = document.getElementById('recent-expenses');
 
         tableBody.innerHTML = '';
 
-        if (expenses.length === 0) {
+        if (!expenses || expenses.length === 0) {
             tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="text-center py-8 text-gray-500">
-                            <div class="text-4xl mb-2">📝</div>
-                            <p>No expenses yet. Start tracking your spending!</p>
-                        </td>
-                    </tr>
-                `;
+            <tr>
+                <td colspan="4" class="text-center py-8 text-gray-500">
+                    <div class="text-4xl mb-2">📝</div>
+                    <p>No expenses yet. Start tracking your spending!</p>
+                </td>
+            </tr>
+        `;
         } else {
             expenses.forEach((expense, index) => {
+                const amount = parseFloat(expense.amount); // 🛡️ Defensive
+                const title = expense.title || 'Untitled';
+                const description = expense.description || '';
+                const expenseDate = expense.expenseDate || 'Unknown';
+
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50 transition-colors duration-200';
                 row.innerHTML = `
-                        <td class="py-4 px-2">
-                            <div class="font-medium text-gray-900">${expense.title}</div>
-                            ${expense.description ? `<div class="text-sm text-gray-500">${expense.description}</div>` : ''}
-                        </td>
-                        <td class="py-4 px-2">
-                            <span class="font-semibold text-lg text-gray-900">$${expense.amount.toFixed(2)}</span>
-                        </td>
-                        <td class="py-4 px-2 text-gray-600">${expense.expenseDate}</td>
-                        <td class="py-4 px-2">
-                            <button onclick="deleteExpense(${index})" 
-                                    class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200">
-                                🗑️ Delete
-                            </button>
-                        </td>
-                    `;
+                <td class="py-4 px-2">
+                    <div class="font-medium text-gray-900">${title}</div>
+                    ${description ? `<div class="text-sm text-gray-500">${description}</div>` : ''}
+                </td>
+                <td class="py-4 px-2">
+                    <span class="font-semibold text-lg text-gray-900">$${isNaN(amount) ? '0.00' : amount.toFixed(2)}</span>
+                </td>
+                <td class="py-4 px-2 text-gray-600">${expenseDate}</td>
+                <td class="py-4 px-2">
+                    <button onclick="deleteExpense(${index})"
+                        class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200">
+                        🗑️ Delete
+                    </button>
+                </td>
+            `;
                 tableBody.appendChild(row);
             });
         }
 
         updateDashboard();
         renderCharts();
-
     }
+
 
     // Load budget
     function loadBudget() {
@@ -545,35 +580,85 @@
         submitBtn.disabled = true;
         submitBtn.innerHTML = '⏳ Adding...';
 
-        const newExpense = {
-            title: document.getElementById('title').value,
-            amount: parseFloat(document.getElementById('amount').value),
-            expenseDate: document.getElementById('expenseDate').value,
-            description: document.getElementById('description').value,
-            id: Date.now()
-        };
-
-        // Simulate API delay
-        setTimeout(() => {
-            expenses.push(newExpense);
-            showToast('Expense added successfully! 🎉');
-            document.getElementById('expense-form').reset();
-            document.getElementById('expenseDate').valueAsDate = new Date();
-            loadExpenses();
-            loadBudget();
-
+        // Retrieve userId from localStorage (assumes it was stored during login)
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            showToast('User not logged in ❌', 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = '💾 Add Expense';
-        }, 500);
+            return;
+        }
+
+        // Create FormData object
+        const formData = new FormData();
+        formData.append('title', document.getElementById('title').value);
+        formData.append('amount', parseFloat(document.getElementById('amount').value));
+        formData.append('expenseDate', document.getElementById('expenseDate').value);
+        formData.append('description', document.getElementById('description').value);
+
+        // Send request to Spring Boot backend
+        fetch(`/api/expenses/${userId}`, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add expense');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showToast('Expense added successfully! 🎉');
+                document.getElementById('expense-form').reset();
+                document.getElementById('expenseDate').valueAsDate = new Date(); // reset to today
+
+                // Add new expense to in-memory array
+                expenses.push({
+                    title: formData.get('title'),
+                    amount: parseFloat(formData.get('amount')),
+                    expenseDate: formData.get('expenseDate'),
+                    description: formData.get('description')
+                });
+
+                loadExpenses(); // reload frontend
+                loadBudget();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error adding expense ❌', 'error');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '💾 Add Expense';
+            });
     });
 
     // Handle delete expense
     function deleteExpense(index) {
-        expenses.splice(index, 1);
-        showToast('Expense deleted successfully! 🗑️');
-        loadExpenses();
-        loadBudget();
+        const expense = expenses[index];
+        const confirmDelete = confirm(`Are you sure you want to delete "${expense.title}"?`);
+
+        if (!confirmDelete) return;
+
+        fetch(`/api/expenses/${expense.id}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed");
+                return response.text(); // <- guna .text() instead of .json()
+            })
+            .then(() => {
+                showToast('Expense deleted successfully! 🗑️');
+                loadExpenses();
+                loadBudget();
+            })
+            .catch(error => {
+                console.error("Delete failed:", error);
+                showToast('Error deleting expense ❌', 'error');
+            });
+
     }
+
 
     // Handle budget form submission
     document.getElementById('budget-form').addEventListener('submit', function(event) {
@@ -591,6 +676,7 @@
         event.preventDefault();
         showToast('Logged out successfully! 👋');
         setTimeout(() => {
+            localStorage.clear();
             window.location.href = 'login.html'; // Redirect to login page
         }, 1000);
     });

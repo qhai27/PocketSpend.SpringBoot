@@ -19,21 +19,27 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity (enable in production with proper config)
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/login.html", "/signup.html").permitAll()
-                        .requestMatchers("/api/expenses/**", "/api/budgets/**").authenticated()
+                        .requestMatchers("/api/expenses/**", "/api/budgets/**").permitAll() // ✅ allow all for dev
                         .anyRequest().permitAll()
                 )
+
                 .formLogin(form -> form
                         .loginPage("/login.html")
                         .defaultSuccessUrl("/index.html", true)
+                        .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
                         .logoutSuccessUrl("/login.html")
-                )
-                .httpBasic(httpBasic -> {});
+                        .permitAll()
+                );
+
+        // Remove or disable this line to avoid the popup
+        // .httpBasic(httpBasic -> {});
+
         return http.build();
     }
 }

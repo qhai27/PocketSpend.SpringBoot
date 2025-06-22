@@ -1,14 +1,12 @@
 package com.pocketspend.service;
 
-
-import java.util.List;
-
-import com.pocketspend.model.Budget;
 import com.pocketspend.model.Expense;
 import com.pocketspend.repository.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class ExpenseService {
@@ -16,36 +14,33 @@ public class ExpenseService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
-    @Autowired
-    private BudgetService budgetService;
-
+    /**
+     * Adds a new expense for a given user.
+     */
     @Transactional
     public Expense addExpense(Long userId, Expense expense) {
-        Budget budget = budgetService.getBudget(userId);
-        if (budget == null) {
-            throw new RuntimeException("No budget set for user");
-        }
-        expense.setBudgetId(budget.getId());
-        Expense savedExpense = expenseRepository.save(expense);
-        // Update budget
-        budgetService.getBudget(userId); // Recalculates totalExpenses and budgetLeft
-        return savedExpense;
+        expense.setUserId(userId); // Ensure expense is associated with the correct user
+        return expenseRepository.save(expense);
     }
 
+    /**
+     * Retrieves all expenses for a given user.
+     */
     public List<Expense> getExpensesByUserId(Long userId) {
-        Budget budget = budgetService.getBudget(userId);
-        if (budget == null) {
-            return List.of();
-        }
-        return expenseRepository.findByBudgetId(budget.getId());
+        return expenseRepository.findByUserId(userId);
     }
 
+    /**
+     * Deletes an expense by its ID.
+     *
+     * @return
+     */
     @Transactional
-    public void removeExpense(Long id) {
-        Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Expense not found"));
+    public boolean removeExpense(Long id) {
+        if (!expenseRepository.existsById(id)) {
+            throw new RuntimeException("Expense with ID " + id + " not found");
+        }
         expenseRepository.deleteById(id);
-        // Update budget
-        budgetService.getBudget(expense.getBudgetId());
+        return false;
     }
 }

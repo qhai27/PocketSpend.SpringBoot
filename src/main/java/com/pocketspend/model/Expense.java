@@ -2,11 +2,7 @@ package com.pocketspend.model;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "expenses")
@@ -16,33 +12,34 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long budgetId;
+    @Column(nullable = false)
+    private Long userId;
 
+    @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false)
     private double amount;
 
-    private LocalDate expenseDate;
-
-    private String receiptImage;
-
+    @Column(nullable = false)
     private LocalDate date;
 
+    @Column(length = 1000)
     private String description;
 
     public Expense() {
+        // Default constructor
     }
 
-    public Expense(Long budgetId, String title, double amount, LocalDate expenseDate, String receiptImage, LocalDate date, String description) {
-        this.budgetId = budgetId;
+    public Expense(Long userId, String title, double amount, LocalDate date, String description) {
+        this.userId = userId;
         this.title = title;
         this.amount = amount;
-        this.expenseDate = expenseDate;
-        this.receiptImage = receiptImage;
         this.date = date;
         this.description = description;
     }
 
+    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }
@@ -51,12 +48,12 @@ public class Expense {
         this.id = id;
     }
 
-    public Long getBudgetId() {
-        return budgetId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setBudgetId(Long budgetId) {
-        this.budgetId = budgetId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getTitle() {
@@ -73,22 +70,6 @@ public class Expense {
 
     public void setAmount(double amount) {
         this.amount = amount;
-    }
-
-    public LocalDate getExpenseDate() {
-        return expenseDate;
-    }
-
-    public void setExpenseDate(LocalDate expenseDate) {
-        this.expenseDate = expenseDate;
-    }
-
-    public String getReceiptImage() {
-        return receiptImage;
-    }
-
-    public void setReceiptImage(String receiptImage) {
-        this.receiptImage = receiptImage;
     }
 
     public LocalDate getDate() {
