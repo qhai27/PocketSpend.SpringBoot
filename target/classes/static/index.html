@@ -1026,7 +1026,24 @@
 
             const imageFile = document.getElementById('receiptImage').files[0];
             if (imageFile) {
+                // Validate file size (max 10MB)
+                if (imageFile.size > 10 * 1024 * 1024) {
+                    showToast('Image file is too large. Please select an image smaller than 10MB.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '💾 Add Expense';
+                    return;
+                }
+
+                // Validate file type
+                if (!imageFile.type.startsWith('image/')) {
+                    showToast('Please select a valid image file.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '💾 Add Expense';
+                    return;
+                }
+
                 formData.append('receiptImage', imageFile);
+                console.log('Adding image to form:', imageFile.name, 'Size:', imageFile.size, 'Type:', imageFile.type);
             }
 
             // Send request to Spring Boot backend
@@ -1036,7 +1053,9 @@
             })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to add expense');
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
                     }
                     return response.json();
                 })
@@ -1050,7 +1069,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('Error adding expense ❌', 'error');
+                    showToast(`Error adding expense: ${error.message} ❌`, 'error');
                 })
                 .finally(() => {
                     submitBtn.disabled = false;

@@ -37,26 +37,55 @@ public class ExpenseController {
             @RequestParam("description") String description,
             @RequestParam(value = "receiptImage", required = false) MultipartFile receiptImage) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        try {
+            System.out.println("Received expense request for user: " + userId);
+            System.out.println("Title: " + title + ", Amount: " + amount + ", Date: " + expenseDate);
 
-        LocalDate parsedDate = LocalDate.parse(expenseDate);
-        Expense expense = new Expense(user, title, amount, parsedDate, description);
-
-        if (receiptImage != null && !receiptImage.isEmpty()) {
-            try {
-                expense.setReceiptImageData(receiptImage.getBytes());
-                expense.setReceiptImageType(receiptImage.getContentType());
-            } catch (IOException e) {
-                // For simplicity, we'll just print the error. In a real app, you'd log this.
-                System.err.println("Error reading file: " + e.getMessage());
-                // Optionally return an error response
-                return ResponseEntity.internalServerError().build();
+            if (receiptImage != null) {
+                System.out.println("Image received: " + receiptImage.getOriginalFilename() +
+                        ", Size: " + receiptImage.getSize() +
+                        ", Content Type: " + receiptImage.getContentType());
             }
-        }
 
-        Expense savedExpense = expenseService.addExpense(userId, expense);
-        return ResponseEntity.ok(savedExpense);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+            LocalDate parsedDate = LocalDate.parse(expenseDate);
+            Expense expense = new Expense(user, title, amount, parsedDate, description);
+
+            if (receiptImage != null && !receiptImage.isEmpty()) {
+                try {
+                    // Validate file size (max 10MB)
+                    if (receiptImage.getSize() > 10 * 1024 * 1024) {
+                        System.err.println("Image file too large: " + receiptImage.getSize() + " bytes");
+                        return ResponseEntity.badRequest().build();
+                    }
+
+                    // Validate content type
+                    if (receiptImage.getContentType() == null || !receiptImage.getContentType().startsWith("image/")) {
+                        System.err.println("Invalid content type: " + receiptImage.getContentType());
+                        return ResponseEntity.badRequest().build();
+                    }
+
+                    expense.setReceiptImageData(receiptImage.getBytes());
+                    expense.setReceiptImageType(receiptImage.getContentType());
+                    System.out.println("Image processed successfully");
+                } catch (IOException e) {
+                    System.err.println("Error reading image file: " + e.getMessage());
+                    e.printStackTrace();
+                    return ResponseEntity.internalServerError().build();
+                }
+            }
+
+            Expense savedExpense = expenseService.addExpense(userId, expense);
+            System.out.println("Expense saved successfully with ID: " + savedExpense.getId());
+            return ResponseEntity.ok(savedExpense);
+
+        } catch (Exception e) {
+            System.err.println("Error creating expense: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     // ✅ Get All Expenses by User

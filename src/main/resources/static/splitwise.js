@@ -4,6 +4,7 @@ class Splitwise {
         this.groups = [];
         this.members = [];
         this.expenses = [];
+        this.balances = {};
         this.currentGroupId = null;
         this.currentView = 'dashboard'; // dashboard, groups, members, expenses, balances
         this.initializeElements();
