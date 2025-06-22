@@ -1,7 +1,8 @@
 package com.pocketspend.service;
 
+import com.pocketspend.repository.ExpenseRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.pocketspend.model.Budget;
 import com.pocketspend.repository.BudgetRepository;
@@ -9,34 +10,29 @@ import com.pocketspend.repository.BudgetRepository;
 @Service
 public class BudgetService {
 
-
+    @Autowired
     private BudgetRepository budgetRepository;
 
-    private ExpenseService expenseService;
+    @Autowired
+    private ExpenseRepository expenseRepository;
 
-    @Transactional
     public Budget setBudget(Long userId, double totalBudget) {
+        double totalExpenses = expenseRepository.sumExpensesByUserId(userId);
         Budget budget = budgetRepository.findByUserId(userId);
+
         if (budget == null) {
             budget = new Budget(userId, totalBudget);
         } else {
             budget.setTotalBudget(totalBudget);
         }
+
+        budget.setTotalExpenses(totalExpenses);
+        budget.setBudgetLeft(totalBudget - totalExpenses);
+
         return budgetRepository.save(budget);
     }
 
     public Budget getBudget(Long userId) {
-        Budget budget = budgetRepository.findByUserId(userId);
-        if (budget != null) {
-            // Update total expenses and budget left
-            double totalExpenses = expenseService.getExpensesByUserId(userId)
-                    .stream()
-                    .mapToDouble(expense -> expense.getAmount())
-                    .sum();
-            budget.setTotalExpenses(totalExpenses);
-            budget.setBudgetLeft(budget.getTotalBudget() - totalExpenses);
-            budgetRepository.save(budget);
-        }
-        return budget;
+        return budgetRepository.findByUserId(userId);
     }
 }

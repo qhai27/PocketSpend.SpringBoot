@@ -13,12 +13,21 @@ public class BudgetController {
     @Autowired
     private BudgetService budgetService;
 
+    // Set or update a user's budget
     @PostMapping("/{userId}")
-    public ResponseEntity<Budget> setBudget(@PathVariable Long userId, @RequestBody Budget budget) {
-        Budget createdBudget = budgetService.setBudget(userId, budget.getTotalBudget());
-        return ResponseEntity.ok(createdBudget);
+    public ResponseEntity<Budget> setOrUpdateBudget(
+            @PathVariable Long userId,
+            @RequestBody Budget budgetRequest
+    ) {
+        if (budgetRequest.getTotalBudget() <= 0) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        Budget savedBudget = budgetService.setBudget(userId, budgetRequest.getTotalBudget());
+        return ResponseEntity.ok(savedBudget);
     }
 
+    // Get budget by user ID
     @GetMapping("/{userId}")
     public ResponseEntity<Budget> getBudget(@PathVariable Long userId) {
         Budget budget = budgetService.getBudget(userId);

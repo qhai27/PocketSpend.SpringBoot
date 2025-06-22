@@ -1,10 +1,6 @@
 package com.pocketspend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "budgets")
@@ -14,15 +10,20 @@ public class Budget {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "total_budget", nullable = false)
     private double totalBudget;
 
+    @Column(name = "total_expenses", nullable = false)
     private double totalExpenses;
 
+    @Column(name = "budget_left", nullable = false)
     private double budgetLeft;
 
     public Budget() {
+        // Default constructor
     }
 
     public Budget(Long userId, double totalBudget) {

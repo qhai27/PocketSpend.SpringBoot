@@ -514,22 +514,33 @@
 
 
     // Load budget
-    function loadBudget() {
-        const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-        budget.totalExpenses = totalExpenses;
-        budget.budgetLeft = budget.totalBudget - totalExpenses;
+    async function loadBudget() {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return;
 
-        document.getElementById('current-budget').textContent = budget.totalBudget ? `$${budget.totalBudget.toFixed(2)}` : '$0.00';
-        document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
-        document.getElementById('budget-left').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
+        try {
+            const response = await fetch(`/api/budgets/${userId}`);
+            if (!response.ok) throw new Error("Failed to load budget");
 
-        // Update progress bar
-        if (budget.totalBudget > 0) {
-            const percentage = Math.min((totalExpenses / budget.totalBudget) * 100, 100);
+            const data = await response.json();
+            budget = {
+                totalBudget: parseFloat(data.totalBudget),
+                totalExpenses: parseFloat(data.totalExpenses),
+                budgetLeft: parseFloat(data.budgetLeft)
+            };
+
+            document.getElementById('current-budget').textContent = `$${budget.totalBudget.toFixed(2)}`;
+            document.getElementById('total-expenses').textContent = `$${budget.totalExpenses.toFixed(2)}`;
+            document.getElementById('budget-left').textContent = `$${budget.budgetLeft.toFixed(2)}`;
+
+            const percentage = budget.totalBudget > 0
+                ? Math.min((budget.totalExpenses / budget.totalBudget) * 100, 100)
+                : 0;
+
             document.getElementById('budget-progress').style.width = `${percentage}%`;
             document.getElementById('budget-percentage').textContent = `${percentage.toFixed(1)}%`;
 
-            // Change color based on usage
+            // Change bar color
             const progressBar = document.getElementById('budget-progress');
             if (percentage > 90) {
                 progressBar.className = 'bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500';
@@ -538,10 +549,16 @@
             } else {
                 progressBar.className = 'bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500';
             }
-        }
 
-        updateDashboard();
+            // Update dashboard cards
+            updateDashboard();
+
+        } catch (error) {
+            console.error("Error loading budget:", error);
+            showToast("Failed to load budget ❌", "error");
+        }
     }
+
 
     // Update dashboard
     function updateDashboard() {
@@ -636,21 +653,19 @@
     // Handle delete expense
     function deleteExpense(index) {
         const expense = expenses[index];
-        if (!expense || !expense.id) {
-            showToast('Expense ID not found ❌', 'error');
-            return;
-        }
+        const confirmDelete = confirm(`Are you sure you want to delete "${expense.title}"?`);
+
+        if (!confirmDelete) return;
 
         fetch(`/api/expenses/${expense.id}`, {
             method: 'DELETE'
         })
             .then(response => {
                 if (!response.ok) throw new Error("Failed");
-                return response.text();
+                return response.text(); // <- guna .text() instead of .json()
             })
             .then(() => {
                 showToast('Expense deleted successfully! 🗑️');
-                expenses.splice(index, 1); // Remove from local array
                 loadExpenses();
                 loadBudget();
             })
@@ -658,19 +673,46 @@
                 console.error("Delete failed:", error);
                 showToast('Error deleting expense ❌', 'error');
             });
+
     }
 
 
-
     // Handle budget form submission
-    document.getElementById('budget-form').addEventListener('submit', function(event) {
+    document.getElementById('budget-form').addEventListener('submit', async function(event) {
         event.preventDefault();
-        const budgetAmount = parseFloat(document.getElementById('budget-amount').value);
 
-        budget.totalBudget = budgetAmount;
-        showToast('Budget set successfully! 🎯');
-        document.getElementById('budget-form').reset();
-        loadBudget();
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            showToast('User not logged in ❌', 'error');
+            return;
+        }
+
+        const budgetAmount = parseFloat(document.getElementById('budget-amount').value);
+        if (isNaN(budgetAmount) || budgetAmount <= 0) {
+            showToast('Please enter a valid budget amount ❌', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/budgets/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ totalBudget: budgetAmount })
+            });
+
+            if (!response.ok) throw new Error('Failed to set budget');
+
+            const data = await response.json();
+            console.log("Budget set:", data);
+            showToast('Budget set successfully! 🎯');
+            document.getElementById('budget-form').reset();
+            loadBudget(); // optional if you want to reload
+        } catch (error) {
+            console.error("Error setting budget:", error);
+            showToast('Error setting budget ❌', 'error');
+        }
     });
 
     // Handle logout
