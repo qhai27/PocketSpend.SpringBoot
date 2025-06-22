@@ -212,7 +212,7 @@
                         </div>
                         <span class="text-sm text-gray-500 font-medium">This Month</span>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-budget">$0.00</h3>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-budget">RM0.00</h3>
                     <p class="text-sm text-gray-600">Total Budget</p>
                 </div>
 
@@ -226,7 +226,7 @@
                         </div>
                         <span class="text-sm text-gray-500 font-medium">Spent</span>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-expenses">$0.00</h3>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-expenses">RM0.00</h3>
                     <p class="text-sm text-gray-600">Total Expenses</p>
                 </div>
 
@@ -240,7 +240,7 @@
                         </div>
                         <span class="text-sm text-gray-500 font-medium">Left</span>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-remaining">$0.00</h3>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-1" id="dashboard-remaining">RM0.00</h3>
                     <p class="text-sm text-gray-600">Budget Remaining</p>
                 </div>
             </div>
@@ -287,7 +287,7 @@
                                 <label for="amount"
                                     class="block text-sm font-semibold text-gray-700 mb-2">Amount</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-3 text-gray-500 text-lg">$</span>
+                                    <span class="absolute left-3 top-3 text-gray-500 text-lg">RM</span>
                                     <input type="number" id="amount" step="0.01" required
                                         class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                                 </div>
@@ -339,6 +339,13 @@
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"></textarea>
                         </div>
 
+                        <div>
+                            <label for="receiptImage" class="block text-sm font-semibold text-gray-700 mb-2">Receipt
+                                Image (Optional)</label>
+                            <input type="file" id="receiptImage" accept="image/*"
+                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                        </div>
+
 
                         <button type="submit" id="submit-btn"
                             class="w-full btn-gradient text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:transform-none">
@@ -371,6 +378,7 @@
                                     <th class="py-4 px-2 font-semibold text-gray-700">Title</th>
                                     <th class="py-4 px-2 font-semibold text-gray-700">Amount</th>
                                     <th class="py-4 px-2 font-semibold text-gray-700">Date</th>
+                                    <th class="py-4 px-2 font-semibold text-gray-700">Receipt</th>
                                     <th class="py-4 px-2 font-semibold text-gray-700">Actions</th>
                                 </tr>
                             </thead>
@@ -432,7 +440,7 @@
                                 <label for="budget-amount" class="block text-sm font-semibold text-gray-700 mb-2">Set
                                     New Budget</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-3 text-gray-500 text-lg">$</span>
+                                    <span class="absolute left-3 top-3 text-gray-500 text-lg">RM</span>
                                     <input type="number" id="budget-amount" step="0.01" required
                                         class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                                         placeholder="Enter your budget amount">
@@ -571,7 +579,8 @@
                     title: e.title,
                     amount: parseFloat(e.amount),
                     expenseDate: e.date,
-                    description: e.description
+                    description: e.description,
+                    receiptImageType: e.receiptImageType
                 }));
 
                 // Now that all data is loaded, update the UI
@@ -593,7 +602,7 @@
             if (!expenses || expenses.length === 0) {
                 tableBody.innerHTML = `
             <tr>
-                <td colspan="4" class="text-center py-8 text-gray-500">
+                <td colspan="5" class="text-center py-8 text-gray-500">
                     <div class="text-4xl mb-2">📝</div>
                     <p>No expenses yet. Start tracking your spending!</p>
                 </td>
@@ -614,9 +623,12 @@
                     ${description ? `<div class="text-sm text-gray-500">${description}</div>` : ''}
                 </td>
                 <td class="py-4 px-2">
-                    <span class="font-semibold text-lg text-gray-900">$${isNaN(amount) ? '0.00' : amount.toFixed(2)}</span>
+                    <span class="font-semibold text-lg text-gray-900">RM${isNaN(amount) ? '0.00' : amount.toFixed(2)}</span>
                 </td>
                 <td class="py-4 px-2 text-gray-600">${expenseDate}</td>
+                <td class="py-4 px-2">
+                    ${expense.receiptImageType ? `<a href="/api/expenses/${expense.id}/image" target="_blank" class="text-blue-500 hover:underline">View</a>` : 'None'}
+                </td>
                 <td class="py-4 px-2">
                     <button onclick="deleteExpense(${index})"
                         class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200">
@@ -689,7 +701,7 @@
                             <div class="font-medium text-gray-900">${expense.title}</div>
                             <div class="text-sm text-gray-500">${expense.expenseDate}</div>
                         </div>
-                        <div class="font-semibold text-lg text-gray-900">$${expense.amount.toFixed(2)}</div>
+                        <div class="font-semibold text-lg text-gray-900">RM${expense.amount.toFixed(2)}</div>
                     </div>
                 `).join('');
             }
@@ -718,6 +730,11 @@
             formData.append('expenseDate', document.getElementById('expenseDate').value);
             formData.append('description', document.getElementById('description').value);
 
+            const imageFile = document.getElementById('receiptImage').files[0];
+            if (imageFile) {
+                formData.append('receiptImage', imageFile);
+            }
+
             // Send request to Spring Boot backend
             fetch(`/api/expenses/${userId}`, {
                 method: 'POST',
@@ -734,16 +751,8 @@
                     document.getElementById('expense-form').reset();
                     document.getElementById('expenseDate').valueAsDate = new Date(); // reset to today
 
-                    // Add new expense to in-memory array
-                    expenses.push({
-                        title: formData.get('title'),
-                        amount: parseFloat(formData.get('amount')),
-                        expenseDate: formData.get('expenseDate'),
-                        description: formData.get('description')
-                    });
-
-                    loadExpenses(); // reload frontend
-                    loadBudget();
+                    // After adding, we must reload all data to get updated budget and expenses
+                    loadInitialData();
                 })
                 .catch(error => {
                     console.error('Error:', error);

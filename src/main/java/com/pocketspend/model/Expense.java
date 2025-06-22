@@ -27,6 +27,13 @@ public class Expense {
     @Column(length = 1000)
     private String description;
 
+    @Lob
+    @Column(name = "receipt_image_data", columnDefinition = "LONGBLOB")
+    private byte[] receiptImageData;
+
+    @Column(name = "receipt_image_type")
+    private String receiptImageType;
+
     public Expense() {
         // Default constructor
     }
@@ -86,5 +93,21 @@ public class Expense {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public byte[] getReceiptImageData() {
+        return receiptImageData;
+    }
+
+    public void setReceiptImageData(byte[] receiptImageData) {
+        this.receiptImageData = receiptImageData;
+    }
+
+    public String getReceiptImageType() {
+        return receiptImageType;
+    }
+
+    public void setReceiptImageType(String receiptImageType) {
+        this.receiptImageType = receiptImageType;
     }
 }

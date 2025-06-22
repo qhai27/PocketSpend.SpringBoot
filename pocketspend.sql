@@ -30,12 +30,11 @@ CREATE TABLE `expenses` (
   `user_id` INT NOT NULL,
   `title` VARCHAR(255) NOT NULL,
   `amount` DECIMAL(10,2) NOT NULL,
-  `receipt_image` VARCHAR(255) DEFAULT NULL,
   `date` DATE NOT NULL,
   `description` TEXT,
+  `receipt_image_data` LONGBLOB,
+  `receipt_image_type` VARCHAR(100),
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `expenses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-ALTER TABLE `expenses` DROP COLUMN `receipt_image`;

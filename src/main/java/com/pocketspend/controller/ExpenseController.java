@@ -1,11 +1,15 @@
 package com.pocketspend.controller;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.pocketspend.model.Expense;
 import com.pocketspend.service.ExpenseService;
@@ -18,19 +22,32 @@ public class ExpenseController {
     @Autowired
     private ExpenseService expenseService;
 
-    // ✅ Add Expense
-    @PostMapping(value = "/{userId}", consumes = {"multipart/form-data"})
+    // ✅ Add Expense with Image
+    @PostMapping(value = "/{userId}", consumes = { "multipart/form-data" })
     public ResponseEntity<Expense> createExpense(
             @PathVariable Long userId,
             @RequestParam("title") String title,
             @RequestParam("amount") double amount,
             @RequestParam("expenseDate") String expenseDate,
-            @RequestParam("description") String description) {
+            @RequestParam("description") String description,
+            @RequestParam(value = "receiptImage", required = false) MultipartFile receiptImage) {
 
         LocalDate parsedDate = LocalDate.parse(expenseDate);
         Expense expense = new Expense(userId, title, amount, parsedDate, description);
-        Expense savedExpense = expenseService.addExpense(userId, expense);
 
+        if (receiptImage != null && !receiptImage.isEmpty()) {
+            try {
+                expense.setReceiptImageData(receiptImage.getBytes());
+                expense.setReceiptImageType(receiptImage.getContentType());
+            } catch (IOException e) {
+                // For simplicity, we'll just print the error. In a real app, you'd log this.
+                System.err.println("Error reading file: " + e.getMessage());
+                // Optionally return an error response
+                return ResponseEntity.internalServerError().build();
+            }
+        }
+
+        Expense savedExpense = expenseService.addExpense(userId, expense);
         return ResponseEntity.ok(savedExpense);
     }
 
@@ -39,6 +56,21 @@ public class ExpenseController {
     public ResponseEntity<List<Expense>> getAllExpenses(@PathVariable Long userId) {
         List<Expense> expenses = expenseService.getExpensesByUserId(userId);
         return ResponseEntity.ok(expenses);
+    }
+
+    // ✅ Get Expense Image
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getExpenseImage(@PathVariable Long id) {
+        Optional<Expense> expenseOptional = expenseService.getExpenseById(id);
+        if (expenseOptional.isPresent()) {
+            Expense expense = expenseOptional.get();
+            if (expense.getReceiptImageData() != null && expense.getReceiptImageType() != null) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(expense.getReceiptImageType()))
+                        .body(expense.getReceiptImageData());
+            }
+        }
+        return ResponseEntity.notFound().build();
     }
 
     // ✅ Delete Expense by ID

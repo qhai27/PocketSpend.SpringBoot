@@ -36,6 +36,10 @@ public class ExpenseService {
         return expenseRepository.findByUserId(userId);
     }
 
+    public Optional<Expense> getExpenseById(Long id) {
+        return expenseRepository.findById(id);
+    }
+
     /**
      * Deletes an expense by its ID and updates the budget.
      */
