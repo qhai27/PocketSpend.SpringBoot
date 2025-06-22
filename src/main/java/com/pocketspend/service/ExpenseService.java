@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ExpenseService {
@@ -14,13 +15,18 @@ public class ExpenseService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
+    @Autowired
+    private BudgetService budgetService; // Injected BudgetService
+
     /**
-     * Adds a new expense for a given user.
+     * Adds a new expense for a given user and updates the budget.
      */
     @Transactional
     public Expense addExpense(Long userId, Expense expense) {
         expense.setUserId(userId); // Ensure expense is associated with the correct user
-        return expenseRepository.save(expense);
+        Expense savedExpense = expenseRepository.save(expense);
+        budgetService.updateBudgetExpenses(userId); // Update budget
+        return savedExpense;
     }
 
     /**
@@ -31,16 +37,18 @@ public class ExpenseService {
     }
 
     /**
-     * Deletes an expense by its ID.
-     *
-     * @return
+     * Deletes an expense by its ID and updates the budget.
      */
     @Transactional
     public boolean removeExpense(Long id) {
-        if (!expenseRepository.existsById(id)) {
-            throw new RuntimeException("Expense with ID " + id + " not found");
+        Optional<Expense> expenseOptional = expenseRepository.findById(id);
+        if (expenseOptional.isPresent()) {
+            Expense expense = expenseOptional.get();
+            Long userId = expense.getUserId();
+            expenseRepository.deleteById(id);
+            budgetService.updateBudgetExpenses(userId); // Update budget
+            return true;
         }
-        expenseRepository.deleteById(id);
         return false;
     }
 }
