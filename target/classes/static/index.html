@@ -201,7 +201,7 @@
         <!-- Charts Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
             <div class="bg-white rounded-xl p-4 shadow border">
-                <h3 class="text-lg font-semibold mb-2 text-gray-800">Expenses Breakdown (Pie)</h3>
+                <h3 class="text-lg font-semibold mb-2 text-gray-800">Expenses Breakdown (Type of Expense)</h3>
                 <canvas id="expensePieChart" height="200"></canvas>
             </div>
             <div class="bg-white rounded-xl p-4 shadow border">
@@ -239,9 +239,32 @@
                     </div>
 
                     <div>
-                        <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
-                        <input type="text" id="title" required placeholder="e.g., Coffee at Starbucks"
-                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                        <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Type of Expense</label>
+                        <select id="title" required
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                            <option value="Grocery">Grocery</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Insurance">Insurance</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Gas">Gas</option>
+                            <option value="Groceries">Groceries</option>
+                            <option value="Housing">Housing</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Clothes">Clothes</option>
+                            <option value="Pets">Pets</option>
+                            <option value="Rent">Rent</option>
+                            <option value="Travel expenses">Travel expenses</option>
+                            <option value="Car payment">Car payment</option>
+                            <option value="Debt">Debt</option>
+                            <option value="Food">Food</option>
+                            <option value="Gifts">Gifts</option>
+                            <option value="Investing">Investing</option>
+                            <option value="Memberships">Memberships</option>
+                            <option value="Student loans">Student loans</option>
+                            <option value="Subscriptions">Subscriptions</option>
+                            <option value="Emergency fund">Emergency fund</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
 
                     <div>
@@ -514,33 +537,22 @@
 
 
     // Load budget
-    async function loadBudget() {
-        const userId = localStorage.getItem('userId');
-        if (!userId) return;
+    function loadBudget() {
+        const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        budget.totalExpenses = totalExpenses;
+        budget.budgetLeft = budget.totalBudget - totalExpenses;
 
-        try {
-            const response = await fetch(`/api/budgets/${userId}`);
-            if (!response.ok) throw new Error("Failed to load budget");
+        document.getElementById('current-budget').textContent = budget.totalBudget ? `$${budget.totalBudget.toFixed(2)}` : '$0.00';
+        document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
+        document.getElementById('budget-left').textContent = budget.totalBudget ? `$${budget.budgetLeft.toFixed(2)}` : '$0.00';
 
-            const data = await response.json();
-            budget = {
-                totalBudget: parseFloat(data.totalBudget),
-                totalExpenses: parseFloat(data.totalExpenses),
-                budgetLeft: parseFloat(data.budgetLeft)
-            };
-
-            document.getElementById('current-budget').textContent = `$${budget.totalBudget.toFixed(2)}`;
-            document.getElementById('total-expenses').textContent = `$${budget.totalExpenses.toFixed(2)}`;
-            document.getElementById('budget-left').textContent = `$${budget.budgetLeft.toFixed(2)}`;
-
-            const percentage = budget.totalBudget > 0
-                ? Math.min((budget.totalExpenses / budget.totalBudget) * 100, 100)
-                : 0;
-
+        // Update progress bar
+        if (budget.totalBudget > 0) {
+            const percentage = Math.min((totalExpenses / budget.totalBudget) * 100, 100);
             document.getElementById('budget-progress').style.width = `${percentage}%`;
             document.getElementById('budget-percentage').textContent = `${percentage.toFixed(1)}%`;
 
-            // Change bar color
+            // Change color based on usage
             const progressBar = document.getElementById('budget-progress');
             if (percentage > 90) {
                 progressBar.className = 'bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500';
@@ -549,16 +561,10 @@
             } else {
                 progressBar.className = 'bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500';
             }
-
-            // Update dashboard cards
-            updateDashboard();
-
-        } catch (error) {
-            console.error("Error loading budget:", error);
-            showToast("Failed to load budget ❌", "error");
         }
-    }
 
+        updateDashboard();
+    }
 
     // Update dashboard
     function updateDashboard() {
@@ -678,41 +684,14 @@
 
 
     // Handle budget form submission
-    document.getElementById('budget-form').addEventListener('submit', async function(event) {
+    document.getElementById('budget-form').addEventListener('submit', function(event) {
         event.preventDefault();
-
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
-            showToast('User not logged in ❌', 'error');
-            return;
-        }
-
         const budgetAmount = parseFloat(document.getElementById('budget-amount').value);
-        if (isNaN(budgetAmount) || budgetAmount <= 0) {
-            showToast('Please enter a valid budget amount ❌', 'error');
-            return;
-        }
 
-        try {
-            const response = await fetch(`/api/budgets/${userId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ totalBudget: budgetAmount })
-            });
-
-            if (!response.ok) throw new Error('Failed to set budget');
-
-            const data = await response.json();
-            console.log("Budget set:", data);
-            showToast('Budget set successfully! 🎯');
-            document.getElementById('budget-form').reset();
-            loadBudget(); // optional if you want to reload
-        } catch (error) {
-            console.error("Error setting budget:", error);
-            showToast('Error setting budget ❌', 'error');
-        }
+        budget.totalBudget = budgetAmount;
+        showToast('Budget set successfully! 🎯');
+        document.getElementById('budget-form').reset();
+        loadBudget();
     });
 
     // Handle logout
@@ -732,24 +711,38 @@
         const pieCtx = document.getElementById('expensePieChart').getContext('2d');
         const barCtx = document.getElementById('expenseBarChart').getContext('2d');
 
-        const labels = expenses.map(e => e.title);
-        const amounts = expenses.map(e => e.amount);
+        // Group expenses by type (title) for doughnut chart
+        const typeTotals = {};
+        expenses.forEach(e => {
+            const type = e.title || 'Other';
+            typeTotals[type] = (typeTotals[type] || 0) + (parseFloat(e.amount) || 0);
+        });
+        const pieLabels = Object.keys(typeTotals);
+        const pieAmounts = Object.values(typeTotals);
+
+        // Bar chart: show by date or other logic if needed
+        const barLabels = expenses.map(e => e.expenseDate);
+        const barAmounts = expenses.map(e => e.amount);
 
         // Destroy existing charts if they exist to prevent duplicates
         if (pieChartInstance) pieChartInstance.destroy();
         if (barChartInstance) barChartInstance.destroy();
 
-        // PIE Chart
+        // Doughnut Chart by type
         pieChartInstance = new Chart(pieCtx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
-                labels: labels,
+                labels: pieLabels,
                 datasets: [{
-                    data: amounts,
+                    data: pieAmounts,
                     backgroundColor: [
                         '#3b82f6', '#8b5cf6', '#34d399',
                         '#f87171', '#fbbf24', '#10b981',
-                        '#f472b6', '#60a5fa', '#f59e0b'
+                        '#f472b6', '#60a5fa', '#f59e0b',
+                        '#6366f1', '#eab308', '#ef4444',
+                        '#14b8a6', '#a21caf', '#f43f5e',
+                        '#22d3ee', '#fde68a', '#7c3aed',
+                        '#facc15', '#4ade80', '#f472b6'
                     ],
                 }]
             },
@@ -763,14 +756,14 @@
             }
         });
 
-        // BAR Chart
+        // BAR Chart by date
         barChartInstance = new Chart(barCtx, {
             type: 'bar',
             data: {
-                labels: labels,
+                labels: barLabels,
                 datasets: [{
                     label: 'Amount Spent',
-                    data: amounts,
+                    data: barAmounts,
                     backgroundColor: '#3b82f6',
                     borderRadius: 6
                 }]
