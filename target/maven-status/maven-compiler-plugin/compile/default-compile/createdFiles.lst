@@ -1,4 +1,5 @@
 com\pocketspend\model\SplitExpense$SplitType.class
+com\pocketspend\service\SplitwiseService$1.class
 com\pocketspend\model\Expense.class
 com\pocketspend\controller\SplitwiseController$SplitData.class
 com\pocketspend\controller\UserController.class

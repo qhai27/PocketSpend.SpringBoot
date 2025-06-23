@@ -67,3 +67,53 @@ Contributions are welcome! Please feel free to submit a pull request or open an 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Docker
+
+**Docker Hub Repository:** [bytesync/pocketspend](https://hub.docker.com/r/bytesync/pocketspend)
+
+### How to Run with Docker Hub Image
+
+1. **Pull the image from Docker Hub:**
+   ```sh
+   docker pull bytesync/pocketspend:latest
+   ```
+2. **Run the container (default port 8080):**
+   ```sh
+   docker run -p 8080:8080 bytesync/pocketspend:latest
+   ```
+3. **Access the app:**
+   - Open your browser and go to [http://localhost:8080](http://localhost:8080)
+
+---
+
+You can also run the application by building the image locally or using Docker Compose.
+
+### Build and Run Locally
+
+```sh
+# Build the Docker image
+docker build -t pocketspend .
+
+# Run the Docker container (default port 8080)
+docker run -p 8080:8080 pocketspend
+```
+
+### Use with Docker Compose
+
+Update your `docker-compose.yml` to use the image:
+
+```yaml
+app:
+  image: bytesync/pocketspend:latest
+  ports:
+    - "8080:8080"
+  environment:
+    SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/pocketspend
+    SPRING_DATASOURCE_USERNAME: root
+    SPRING_DATASOURCE_PASSWORD: root
+    SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  depends_on:
+    db:
+      condition: service_healthy
+```

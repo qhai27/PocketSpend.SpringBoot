@@ -1,0 +1,25 @@
+# PocketSpend Spring Boot Application - Reverse Proxy Configuration
+# This file should be placed in the public_html directory
+
+# Enable mod_rewrite
+RewriteEngine On
+
+# Proxy all requests to the Spring Boot application running on port 8080
+# Replace 'yourdomain.com' with your actual domain
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule ^(.*)$ http://localhost:8080/$1 [P,L]
+
+# Handle API requests
+RewriteRule ^api/(.*)$ http://localhost:8080/api/$1 [P,L]
+
+# Set proxy headers
+ProxyPreserveHost On
+ProxyPass / http://localhost:8080/
+ProxyPassReverse / http://localhost:8080/
+
+# Handle static files (if needed)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.*)$ - [L]
+
+# Fallback to Spring Boot application
+RewriteRule ^(.*)$ http://localhost:8080/$1 [P,L] 
