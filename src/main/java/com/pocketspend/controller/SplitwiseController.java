@@ -238,6 +238,20 @@ public class SplitwiseController {
         }
     }
 
+    @PostMapping("/groups/{groupId}/settle")
+    public ResponseEntity<?> settleUp(@PathVariable Long groupId) {
+        try {
+            splitwiseService.settleUp(groupId);
+            return ResponseEntity.ok().body(Map.of("message", "All balances have been settled successfully."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred."));
+        }
+    }
+
     // DTO for expense creation
     public static class SplitExpenseRequest {
         private ExpenseData expense;

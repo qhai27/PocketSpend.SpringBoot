@@ -81,8 +81,6 @@ public class SplitwiseService {
 
     public SplitExpense createExpense(Long groupId, SplitExpense expense, List<ExpenseSplit> splits) {
         System.out.println("Service: Creating expense for group: " + groupId);
-        System.out.println(
-                "Service: Expense paidBy ID: " + (expense.getPaidBy() != null ? expense.getPaidBy().getId() : "null"));
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Group not found with id: " + groupId));
@@ -91,7 +89,8 @@ public class SplitwiseService {
             throw new IllegalArgumentException("Expense description cannot be empty");
         }
 
-        if (expense.getAmount() == null || expense.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+        BigDecimal totalAmount = expense.getAmount();
+        if (totalAmount == null || totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Expense amount must be greater than zero");
         }
 
@@ -99,18 +98,9 @@ public class SplitwiseService {
             throw new IllegalArgumentException("Paid by member must be specified");
         }
 
-        if (splits == null || splits.isEmpty()) {
-            throw new IllegalArgumentException("At least one split must be specified");
-        }
-
-        // Verify paidBy member exists and belongs to the group
-        System.out.println("Service: Looking for paidBy member with ID: " + expense.getPaidBy().getId());
         GroupMember paidByMember = groupMemberRepository.findById(expense.getPaidBy().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Paid by member not found"));
-
-        System.out.println(
-                "Service: Found paidBy member: " + paidByMember.getName() + " (ID: " + paidByMember.getId() + ")");
-        System.out.println("Service: PaidBy member belongs to group: " + paidByMember.getGroup().getId());
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Paid by member not found with ID: " + expense.getPaidBy().getId()));
 
         if (!paidByMember.getGroup().getId().equals(groupId)) {
             throw new IllegalArgumentException("Paid by member does not belong to this group");
@@ -119,21 +109,20 @@ public class SplitwiseService {
         expense.setGroup(group);
         expense.setPaidBy(paidByMember);
         expense.setCreatedAt(java.time.LocalDateTime.now());
-
-        System.out.println("Service: About to save expense with paidBy: " + expense.getPaidBy().getName());
         SplitExpense savedExpense = splitExpenseRepository.save(expense);
-        System.out.println("Service: Expense saved with ID: " + savedExpense.getId());
-        System.out.println("Service: Saved expense paidBy: " + savedExpense.getPaidBy().getName());
 
-        for (ExpenseSplit split : splits) {
-            // Verify split member exists and belongs to the group
+        // --- Core Splitting Logic ---
+        List<ExpenseSplit> calculatedSplits = calculateSplits(savedExpense, splits);
+
+        // Save the calculated splits
+        for (ExpenseSplit split : calculatedSplits) {
             GroupMember splitMember = groupMemberRepository.findById(split.getMember().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Split member not found"));
-
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Split member not found with ID: " + split.getMember().getId()));
             if (!splitMember.getGroup().getId().equals(groupId)) {
-                throw new IllegalArgumentException("Split member does not belong to this group");
+                throw new IllegalArgumentException(
+                        "Split member " + splitMember.getName() + " does not belong to this group");
             }
-
             split.setExpense(savedExpense);
             split.setMember(splitMember);
             expenseSplitRepository.save(split);
@@ -142,11 +131,97 @@ public class SplitwiseService {
         return savedExpense;
     }
 
+    private List<ExpenseSplit> calculateSplits(SplitExpense expense, List<ExpenseSplit> providedSplits) {
+        BigDecimal totalAmount = expense.getAmount();
+        List<ExpenseSplit> finalSplits = new ArrayList<>();
+        List<Long> memberIds = providedSplits.stream().map(s -> s.getMember().getId()).toList();
+
+        switch (expense.getSplitType()) {
+            case EQUAL:
+                if (memberIds.isEmpty()) {
+                    throw new IllegalArgumentException("At least one member must be selected for an equal split.");
+                }
+                BigDecimal splitCount = new BigDecimal(memberIds.size());
+                BigDecimal individualAmount = totalAmount.divide(splitCount, 2, java.math.RoundingMode.HALF_UP);
+                BigDecimal remainder = totalAmount.subtract(individualAmount.multiply(splitCount));
+
+                for (int i = 0; i < memberIds.size(); i++) {
+                    ExpenseSplit split = new ExpenseSplit();
+                    split.setMember(new GroupMember(memberIds.get(i)));
+                    BigDecimal amount = individualAmount;
+                    if (i == 0) { // Add remainder to the first person
+                        amount = amount.add(remainder);
+                    }
+                    split.setAmount(amount);
+                    finalSplits.add(split);
+                }
+                break;
+
+            case PERCENTAGE:
+                BigDecimal totalPercentage = providedSplits.stream()
+                        .map(ExpenseSplit::getAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                if (totalPercentage.compareTo(new BigDecimal("100")) != 0) {
+                    throw new IllegalArgumentException("Percentages must add up to exactly 100.");
+                }
+
+                BigDecimal runningTotal = BigDecimal.ZERO;
+                for (int i = 0; i < providedSplits.size(); i++) {
+                    ExpenseSplit providedSplit = providedSplits.get(i);
+                    ExpenseSplit finalSplit = new ExpenseSplit();
+                    finalSplit.setMember(providedSplit.getMember());
+
+                    BigDecimal percentage = providedSplit.getAmount();
+                    BigDecimal calculatedAmount = totalAmount.multiply(percentage).divide(new BigDecimal("100"), 2,
+                            java.math.RoundingMode.HALF_UP);
+
+                    runningTotal = runningTotal.add(calculatedAmount);
+                    finalSplit.setAmount(calculatedAmount);
+                    finalSplits.add(finalSplit);
+                }
+
+                // Adjust for rounding
+                BigDecimal remainderAfterPercentage = totalAmount.subtract(runningTotal);
+                if (remainderAfterPercentage.compareTo(BigDecimal.ZERO) != 0 && !finalSplits.isEmpty()) {
+                    finalSplits.get(0).setAmount(finalSplits.get(0).getAmount().add(remainderAfterPercentage));
+                }
+                break;
+
+            case CUSTOM:
+                BigDecimal customTotal = providedSplits.stream()
+                        .map(ExpenseSplit::getAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                if (customTotal.compareTo(totalAmount) != 0) {
+                    throw new IllegalArgumentException("Custom split amounts must add up to the total expense amount.");
+                }
+
+                return providedSplits; // Use as is after validation
+
+            default:
+                throw new IllegalArgumentException("Invalid split type specified.");
+        }
+
+        return finalSplits;
+    }
+
     public void deleteExpense(Long expenseId) {
         if (!splitExpenseRepository.existsById(expenseId)) {
             throw new IllegalArgumentException("Expense not found with id: " + expenseId);
         }
         splitExpenseRepository.deleteById(expenseId);
+    }
+
+    // Settle all balances for a group by deleting all its expenses
+    public void settleUp(Long groupId) {
+        if (!groupRepository.existsById(groupId)) {
+            throw new IllegalArgumentException("Group not found with id: " + groupId);
+        }
+        List<SplitExpense> expenses = splitExpenseRepository.findByGroupIdOrderByCreatedAtDesc(groupId);
+        if (!expenses.isEmpty()) {
+            splitExpenseRepository.deleteAll(expenses);
+        }
     }
 
     // Balances for a group

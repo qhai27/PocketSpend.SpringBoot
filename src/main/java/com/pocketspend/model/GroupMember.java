@@ -26,6 +26,10 @@ public class GroupMember {
     public GroupMember() {
     }
 
+    public GroupMember(Long id) {
+        this.id = id;
+    }
+
     public GroupMember(String name, Group group) {
         this.name = name;
         this.group = group;

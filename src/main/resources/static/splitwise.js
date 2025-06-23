@@ -706,11 +706,34 @@ class Splitwise {
 
     selectGroup(groupId) {
         this.currentGroupId = groupId;
-        this.fetchMembers(groupId);
-        this.fetchExpenses(groupId);
-        this.fetchBalances(groupId);
         this.showMessage(`Selected group: ${this.getCurrentGroupName()}`, 'success');
+        this.refreshGroupData(groupId);
         this.switchView('expenses');
+    }
+
+    async refreshGroupData(groupId) {
+        if (!groupId) return;
+
+        // Show a loading indicator if you have one
+        try {
+            const [members, expenses, balances] = await Promise.all([
+                this.apiGet(`/api/splitwise/groups/${groupId}/members`),
+                this.apiGet(`/api/splitwise/groups/${groupId}/expenses`),
+                this.apiGet(`/api/splitwise/groups/${groupId}/balances`)
+            ]);
+
+            this.members = members;
+            this.expenses = expenses;
+            this.balances = balances;
+
+            // Update the UI once with all new data
+            this.updateContent();
+
+        } catch (error) {
+            this.showMessage(`Failed to refresh group data: ${error.message}`, 'error');
+        } finally {
+            // Hide loading indicator
+        }
     }
 
     async fetchMembers(groupId) {
@@ -730,7 +753,7 @@ class Splitwise {
             await this.apiPost(`/api/splitwise/groups/${this.currentGroupId}/members`, { name });
             this.memberNameInput.value = '';
             this.showMessage('Member added successfully!', 'success');
-            this.fetchMembers(this.currentGroupId);
+            await this.refreshGroupData(this.currentGroupId);
         } catch (e) {
             this.showMessage('Failed to add member: ' + e.message, 'error');
         }
@@ -742,7 +765,7 @@ class Splitwise {
         try {
             await this.apiDelete(`/api/splitwise/members/${memberId}`);
             this.showMessage('Member deleted successfully!', 'success');
-            this.fetchMembers(this.currentGroupId);
+            await this.refreshGroupData(this.currentGroupId);
         } catch (e) {
             this.showMessage('Failed to delete member: ' + e.message, 'error');
         }
@@ -803,14 +826,15 @@ class Splitwise {
                 splits: selectedMembers
             });
 
-            // Clear form
+            // Clear form and show message
             this.expenseDescription.value = '';
             this.expenseAmount.value = '';
             this.expensePaidBy.value = '';
             this.expenseSplitType.value = 'EQUAL';
-
             this.showMessage('Expense added successfully!', 'success');
-            this.fetchExpenses(groupId);
+
+            // Refresh all group data
+            await this.refreshGroupData(groupId);
         } catch (e) {
             console.error('Frontend: Error adding expense:', e);
             this.showMessage('Failed to add expense: ' + e.message, 'error');
@@ -823,7 +847,7 @@ class Splitwise {
         try {
             await this.apiDelete(`/api/splitwise/expenses/${expenseId}`);
             this.showMessage('Expense deleted successfully!', 'success');
-            this.fetchExpenses(this.currentGroupId);
+            await this.refreshGroupData(this.currentGroupId);
         } catch (e) {
             this.showMessage('Failed to delete expense: ' + e.message, 'error');
         }
@@ -868,7 +892,30 @@ class Splitwise {
     }
 
     settleUp() {
-        this.showMessage('Settle up functionality coming soon!', 'info');
+        if (!this.currentGroupId) {
+            return this.showMessage('Please select a group first.', 'warning');
+        }
+
+        if (!confirm('Are you sure you want to settle all balances for this group? This will delete all expenses and cannot be undone.')) {
+            return;
+        }
+
+        this.settleUpBtn.disabled = true;
+        this.settleUpBtn.innerHTML = '🔄 Settling...';
+
+        this.apiPost(`/api/splitwise/groups/${this.currentGroupId}/settle`, {})
+            .then(response => {
+                this.showMessage(response.message || 'Balances settled successfully!', 'success');
+                // Refresh all data to show empty state
+                return this.refreshGroupData(this.currentGroupId);
+            })
+            .catch(error => {
+                this.showMessage(`Failed to settle balances: ${error.message}`, 'error');
+            })
+            .finally(() => {
+                this.settleUpBtn.disabled = false;
+                this.settleUpBtn.innerHTML = 'Settle All Balances';
+            });
     }
 
     showMessage(message, type = 'success') {

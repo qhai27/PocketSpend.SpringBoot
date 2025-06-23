@@ -118,6 +118,43 @@
             display: none;
         }
 
+        .expense-row {
+            transition: all 0.3s ease;
+        }
+
+        .expense-row.deleting {
+            opacity: 0.5;
+            transform: translateX(-20px);
+        }
+
+        .expense-row.deleted {
+            opacity: 0;
+            transform: translateX(-100%);
+            height: 0;
+            overflow: hidden;
+        }
+
+        .expense-row.new-expense {
+            animation: slideInFromTop 0.5s ease-out;
+        }
+
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
         .nav-active {
             background: rgba(255, 255, 255, 0.2);
         }
@@ -913,7 +950,8 @@
                     const expenseDate = expense.expenseDate || 'Unknown';
 
                     const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200';
+                    row.className = 'expense-row hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200';
+                    row.setAttribute('data-expense-id', expense.id);
                     row.innerHTML = `
                 <td class="py-4 px-2">
                     <div class="font-medium text-gray-900 dark:text-gray-100">${title}</div>
@@ -928,7 +966,7 @@
                 </td>
                 <td class="py-4 px-2">
                     <button onclick="deleteExpense(${expense.id})"
-                        class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200">
+                        class="delete-btn bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200">
                         🗑️ Delete
                     </button>
                 </td>
@@ -1064,8 +1102,41 @@
                     document.getElementById('expense-form').reset();
                     document.getElementById('expenseDate').valueAsDate = new Date(); // reset to today
 
-                    // After adding, we must reload all data to get updated budget and expenses
-                    loadInitialData();
+                    // Add to local arrays
+                    const newExpense = {
+                        id: data.id,
+                        userId: data.userId,
+                        title: data.title,
+                        amount: parseFloat(data.amount),
+                        expenseDate: data.date,
+                        description: data.description,
+                        receiptImageType: data.receiptImageType
+                    };
+
+                    expenses.unshift(newExpense); // Add to beginning
+                    filteredExpenses.unshift(newExpense);
+
+                    // Update budget calculations
+                    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+                    budget.totalExpenses = totalExpenses;
+                    budget.budgetLeft = budget.totalBudget - totalExpenses;
+
+                    // Update UI without refresh
+                    loadExpenses();
+                    loadBudget();
+                    updateDashboard();
+                    renderCharts();
+
+                    // Add animation to the new row
+                    setTimeout(() => {
+                        const newRow = document.querySelector(`tr[data-expense-id="${data.id}"]`);
+                        if (newRow) {
+                            newRow.classList.add('new-expense');
+                            setTimeout(() => {
+                                newRow.classList.remove('new-expense');
+                            }, 500);
+                        }
+                    }, 100);
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -1078,33 +1149,85 @@
         });
 
         // Handle delete expense
-        function deleteExpense(index) {
-            const expense = expenses[index];
-            const confirmDelete = confirm(`Are you sure you want to delete "${expense.title}"?`);
+        function deleteExpense(expenseId) {
+            const expense = expenses.find(e => e.id === expenseId);
+            if (!expense) {
+                showToast('Expense not found ❌', 'error');
+                return;
+            }
 
+            const confirmDelete = confirm(`Are you sure you want to delete "${expense.title}"?`);
             if (!confirmDelete) return;
 
-            fetch(`/api/expenses/${expense.id}`, {
+            // Find the row element and add deleting animation
+            const row = document.querySelector(`tr[data-expense-id="${expenseId}"]`);
+            if (row) {
+                row.classList.add('deleting');
+            }
+
+            // Show loading state on button
+            const deleteBtn = document.querySelector(`tr[data-expense-id="${expenseId}"] .delete-btn`);
+            if (deleteBtn) {
+                deleteBtn.innerHTML = '🗑️ Deleting...';
+                deleteBtn.disabled = true;
+                deleteBtn.classList.add('btn-loading');
+            }
+
+            fetch(`/api/expenses/${expenseId}`, {
                 method: 'DELETE'
             })
                 .then(response => {
-                    if (!response.ok) throw new Error("Failed");
+                    if (!response.ok) throw new Error("Failed to delete expense");
                     return response.text();
                 })
                 .then(() => {
+                    // Add deleted animation
+                    if (row) {
+                        row.classList.remove('deleting');
+                        row.classList.add('deleted');
+
+                        // Remove row after animation completes
+                        setTimeout(() => {
+                            if (row && row.parentNode) {
+                                row.parentNode.removeChild(row);
+                            }
+                        }, 300);
+                    }
+
+                    // Remove from local arrays
+                    expenses = expenses.filter(e => e.id !== expenseId);
+                    filteredExpenses = filteredExpenses.filter(e => e.id !== expenseId);
+
+                    // Update budget calculations
+                    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+                    budget.totalExpenses = totalExpenses;
+                    budget.budgetLeft = budget.totalBudget - totalExpenses;
+
+                    // Update UI without refresh
+                    loadBudget();
+                    updateDashboard();
+                    renderCharts();
+
                     showToast('Expense deleted successfully! 🗑️');
-                    // After deleting, we must reload all data to get updated budget and expenses
-                    loadInitialData();
                 })
                 .catch(error => {
                     console.error("Delete failed:", error);
                     showToast('Error deleting expense ❌', 'error');
+
+                    // Restore row state on error
+                    if (row) {
+                        row.classList.remove('deleting');
+                    }
+                })
+                .finally(() => {
+                    // Restore button state
+                    if (deleteBtn) {
+                        deleteBtn.innerHTML = '🗑️ Delete';
+                        deleteBtn.disabled = false;
+                        deleteBtn.classList.remove('btn-loading');
+                    }
                 });
-
         }
-
-
-
 
         // Handle budget form submission
         document.getElementById('budget-form').addEventListener('submit', function (event) {

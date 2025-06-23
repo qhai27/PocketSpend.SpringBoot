@@ -19,9 +19,8 @@ public class SplitExpense {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "paid_by_id")
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "paid_by_id", nullable = false)
     private GroupMember paidBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
