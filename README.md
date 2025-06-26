@@ -12,10 +12,6 @@ Set monthly budgets for different categories (e.g., Food, Transport, Entertainme
 Interactive charts and graphs to help users analyze where their money goes over days, weeks, or months.
 - User-friendly interface
 PocketSpend features a clean interface that makes it easy for users to navigate, track expenses, and manage budgets effortlessly.
-- Track expenses with detailed descriptions
-- Set and manage budgets
-- View spending patterns over time
-- User-friendly interface
 
 ## 🛠️💻 Technologies Used
 
