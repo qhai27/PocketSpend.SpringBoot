@@ -74,7 +74,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Docker
 
-**Docker Hub Repository:** [bytesync/pocketspend](https://hub.docker.com/r/bytesync/pocketspend)
+**Docker Hub Repository:** [bytesync/pocketspend](https://hub.docker.com/r/bytesync/pocketspend-springboot)
 
 ### How to Run with Docker Hub Image
 
