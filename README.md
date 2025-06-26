@@ -1,22 +1,26 @@
-# PocketSpend - Expense Tracker and Budgeting App
+# 💼📊 PocketSpend - Expense Tracker and Budgeting App
 
 PocketSpend is a web application designed to help users track their expenses, set budgets, and visualize their spending patterns over time. Built with Spring Boot and MySQL, this application provides a user-friendly interface for managing personal finances.
 
-## Features
+## 🌟 Key Features
 
-- Track expenses with detailed descriptions
-- Set and manage budgets
-- View spending patterns over time
+- Expense Tracking
+Add and categorize daily expenses with detailed descriptions and amounts.
+- Budget Management
+Set monthly budgets for different categories (e.g., Food, Transport, Entertainment) and monitor your spending limits in real time.
+- Spending Visualization
+Interactive charts and graphs to help users analyze where their money goes over days, weeks, or months.
 - User-friendly interface
+PocketSpend features a clean interface that makes it easy for users to navigate, track expenses, and manage budgets effortlessly.
 
-## Technologies Used
+## 🛠️💻 Technologies Used
 
 - Spring Boot
 - MySQL
 - HTML/CSS
 - Java
 
-## Getting Started
+## 🚀🔧 Getting Started
 
 ### Prerequisites
 
