@@ -83,7 +83,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    docker run -p 8080:8080 bytesync/pocketspend:latest
    ```
 3. **Access the app:**
-   - Open your browser and go to [http://localhost:8080](http://localhost:8080)
+   - Open your browser and go to [http://localhost:8080/login.html](http://localhost:8080/login.html)
 
 ---
 
