@@ -1,3 +1,16 @@
+## 👨‍💻 Prepared By: **Group 5** – Web Engineering Project
+
+| 🔢 No | 👤 Name                              | 🆔 Matric No |
+|------:|-------------------------------------|-------------:|
+| 1️⃣   | **Khairunniza binti Khairol Anuar** | 291531       |
+| 2️⃣   | **Nur Azzyati binti Abu Bakar**     | 291560       |
+| 3️⃣   | **Nur Syazwani binti Mohd Muzakir** | 291724       |
+| 4️⃣   | **Nur Damia binti Mohd Nazri**      | 291763       |
+| 5️⃣   | **Ahmad Fazliyan bin Subli**        | 292631       |
+
+> ✨ *This project is developed as part of our Web Engineering coursework.
+
+
 # 💼📊 PocketSpend - Expense Tracker and Budgeting App
 
 PocketSpend is a web application designed to help users track their expenses, set budgets, and visualize their spending patterns over time. Built with Spring Boot and MySQL, this application provides a user-friendly interface for managing personal finances.
