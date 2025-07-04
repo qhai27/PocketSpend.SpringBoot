@@ -22,9 +22,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://dpg-d1ek0oje5dus73bhhklg-a/pocketspend
-      SPRING_DATASOURCE_USERNAME: pocketspend_user
-      SPRING_DATASOURCE_PASSWORD: 9z045ko4T0ShEZ0YgsIQr1nQgfdpEtTo
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/pocketspend?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_PROFILES_ACTIVE: prod
     depends_on:
